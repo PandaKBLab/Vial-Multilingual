@@ -1,35 +1,35 @@
 # PandaKB Vial Multilingual
 
-A Windows portable edition of [Vial](https://get.vial.today/) with 12 interface languages, maintained and modified by **PandaKB**.
+**English** · [简体中文](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.zh-CN.md) · [繁體中文](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.zh-TW.md) · [日本語](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.ja.md) · [Deutsch](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.de.md) · [Français](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.fr.md) · [Español](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.es.md) · [Português (Brasil)](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.pt-BR.md) · [한국어](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.ko.md) · [Italiano](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.it.md) · [Русский](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.ru.md) · [Polski](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.pl.md)
 
-[Download v0.1.0](https://github.com/PandaKBLab/Vial-Multilingual/releases/tag/v0.1.0) · [Source](https://github.com/PandaKBLab/Vial-Multilingual) · [Build checks](https://github.com/PandaKBLab/Vial-Multilingual/actions/workflows/build.yml)
+PandaKB maintains this portable Windows x64 edition of the open-source [Vial](https://get.vial.today/) keyboard configurator. It supports 12 interface languages and starts in English by default.
 
-## 使用方法
+[Download v0.1.0](https://github.com/PandaKBLab/Vial-Multilingual/releases/tag/v0.1.0) · [Validation report](VALIDATION.md) · [Build checks](https://github.com/PandaKBLab/Vial-Multilingual/actions/workflows/build.yml)
 
-1. 从上方版本页面下载 Windows x64 ZIP，完整解压后打开文件夹中的 `Vial.exe`。不要只复制 EXE。
-2. 在 **Settings → Language / 语言** 中选择语言。默认英语，选择会记住。
-3. 选择后可确认立即自动重启。未保存的宏或设置、录制或固件更新期间会保留窗口；先保存或撤销编辑，完成操作后再次选择语言即可重启。
+## Getting started
 
-包含英语、简体中文、繁体中文、日语、德语、法语、西班牙语、巴西葡萄牙语、韩语、意大利语、俄语、波兰语。内置菜单、高级设置、键码悬停说明、灯效和常规状态提示都有对应翻译。QMK 标识符、标准键帽文字、设备自行提供的名称及原始异常信息保留原值。
+1. Download the Windows x64 ZIP, extract it completely, and run `Vial.exe` from the extracted folder. Keep the accompanying files together.
+2. Choose a language in **Settings → Language / 语言**. Vial remembers your choice.
+3. Confirm to restart Vial automatically. Save or undo pending edits and finish any recording or firmware update before retrying.
 
-**关于 Vial** 保留原作者与 GPL 信息，并显示 **Modified by PandaKB**。
+## Windows first-run prompt
 
-## Windows 首次打开提示
+The portable build is unsigned. Windows SmartScreen may report an unknown publisher. Download the ZIP from the project’s release page and verify it against the `SHA256SUMS.txt` file on that page. [Microsoft SmartScreen documentation](https://learn.microsoft.com/windows/apps/package-and-deploy/smartscreen-reputation)
 
-本版未进行商业代码签名，因此 Windows 可能显示“发布者未知”或 SmartScreen 提示。请仅从本仓库版本页面下载，并核对同页的 SHA256 校验值。确认来源后，可以在提示的“更多信息”中选择“仍要运行”；无需关闭系统防护。企业管理策略可能不允许继续。
+## v0.1.0
 
-有效签名可以显示经过验证的发布者，但不能保证新版本立即不再提示。详情见 [Microsoft SmartScreen 说明](https://learn.microsoft.com/windows/apps/package-and-deploy/smartscreen-reputation)。
+The stable release completes translations for built-in menus, advanced QMK settings, keycodes and tooltips, dynamic layers, MIDI, lighting effect names, device information, and firmware update messages. Standard keycap legends, QMK identifiers, device-provided names, and raw exception details retain their original values.
 
-## Validation and scope
-
-GitHub Actions requires complete extracted translation catalogs, checks format placeholders and HTML, runs the upstream regression tests plus language/restart tests, and opens the packaged Windows EXE in all 12 languages. The synthetic keyboard checks cover main editors, all advanced-settings tabs, lighting effects and About. Reports and screenshots are retained as build artifacts.
-
-Hardware communication tests use simulated devices. Physical keyboard flashing, unlock sequences and manufacturer-specific firmware names require testing with the actual keyboard.
+All 12 languages cover 767 of 767 catalogued interface entries. The build passed 67 automated tests and Windows application checks in all 12 languages. Physical keyboard flashing and unlocking still require hardware validation. [Release notes and downloads](https://github.com/PandaKBLab/Vial-Multilingual/releases/tag/v0.1.0)
 
 ## Development and license
 
-Upstream source: `vial-kb/vial-gui`, pinned at `aef8222a2d0429a183b2ed692d5f9efcfd383f08`. The compatible upstream Python 3.6 / Qt 5.9 build stack is retained for this release. Source edits, translation compilation and Windows packaging are performed in GitHub.
+This edition is based on [Vial upstream commit aef8222](https://github.com/vial-kb/vial-gui/commit/aef8222a2d0429a183b2ed692d5f9efcfd383f08) and uses the compatible Python 3.6 and Qt 5.9 build stack. GitHub Actions compiles the catalogs, checks placeholders and markup, runs regression tests, and packages the portable Windows app.
 
-Translations: `translations/*.json`; extraction and validation: `scripts/build_translations.py --strict`. Missing translations block a release. Contributions correcting terminology are welcome.
+The translations live in [`translations/`](translations/). Run `python scripts/build_translations.py --strict` with Qt `lrelease` installed to validate the catalogs. Contributions that improve terminology are welcome.
 
-Original copyright remains with the Vial contributors. Modifications by PandaKB. See [COPYING](COPYING) and [NOTICE](NOTICE) for GPL-2.0-or-later and attribution.
+About Vial credits the upstream contributors and displays **Modified by PandaKB**. See [COPYING](COPYING) and [NOTICE](NOTICE) for the GPL-2.0-or-later license and attribution.
+
+## v0.1.0-preview.1
+
+The first Windows x64 preview provides menus and common controls in 12 languages. Some advanced descriptions and lighting effect names fall back to English. Applying a language in this preview requires a manual restart. [Preview release](https://github.com/PandaKBLab/Vial-Multilingual/releases/tag/v0.1.0-preview.1)
