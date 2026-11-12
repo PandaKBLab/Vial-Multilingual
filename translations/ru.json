@@ -741,5 +741,7 @@
   "sideload": "внешнее описание",
   "Dummy Keyboard": "Виртуальная клавиатура",
   "Any": "Любой",
-  "Vial Bootloader [{:04X}:{:04X}]": "Загрузчик Vial [{:04X}:{:04X}]"
+  "Vial Bootloader [{:04X}:{:04X}]": "Загрузчик Vial [{:04X}:{:04X}]",
+  "Text file": "Текстовый файл",
+  "Vial macro": "Макрос Vial"
 }

@@ -741,5 +741,7 @@
   "sideload": "수동 로드",
   "Dummy Keyboard": "가상 키보드",
   "Any": "임의",
-  "Vial Bootloader [{:04X}:{:04X}]": "Vial 부트로더 [{:04X}:{:04X}]"
+  "Vial Bootloader [{:04X}:{:04X}]": "Vial 부트로더 [{:04X}:{:04X}]",
+  "Text file": "텍스트 파일",
+  "Vial macro": "Vial 매크로"
 }

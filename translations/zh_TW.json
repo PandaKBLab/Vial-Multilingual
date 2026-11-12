@@ -741,5 +741,7 @@
   "sideload": "旁載",
   "Dummy Keyboard": "模擬鍵盤",
   "Any": "任意",
-  "Vial Bootloader [{:04X}:{:04X}]": "Vial 引導載入器 [{:04X}:{:04X}]"
+  "Vial Bootloader [{:04X}:{:04X}]": "Vial 引導載入器 [{:04X}:{:04X}]",
+  "Text file": "文字檔案",
+  "Vial macro": "Vial 巨集"
 }

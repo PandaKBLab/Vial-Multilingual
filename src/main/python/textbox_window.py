@@ -12,7 +12,10 @@ class TextboxWindow(QDialog):
 
         self.text = text
         self.file_extension = file_extension
-        self.file_type = file_type
+        self.file_type = {
+            "Text file": tr("TextboxWindow", "Text file"),
+            "Vial macro": tr("TextboxWindow", "Vial macro"),
+        }.get(file_type, file_type)
         self.encoding = encoding
 
         self.control_held = False

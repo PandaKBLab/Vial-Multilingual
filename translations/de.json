@@ -741,5 +741,7 @@
   "sideload": "extern geladen",
   "Dummy Keyboard": "Virtuelle Tastatur",
   "Any": "Frei",
-  "Vial Bootloader [{:04X}:{:04X}]": "Vial-Bootloader [{:04X}:{:04X}]"
+  "Vial Bootloader [{:04X}:{:04X}]": "Vial-Bootloader [{:04X}:{:04X}]",
+  "Text file": "Textdatei",
+  "Vial macro": "Vial-Makro"
 }

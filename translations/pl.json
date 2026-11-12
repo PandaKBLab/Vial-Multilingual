@@ -741,5 +741,7 @@
   "sideload": "wczytane ręcznie",
   "Dummy Keyboard": "Wirtualna klawiatura",
   "Any": "Dowolny",
-  "Vial Bootloader [{:04X}:{:04X}]": "Bootloader Vial [{:04X}:{:04X}]"
+  "Vial Bootloader [{:04X}:{:04X}]": "Bootloader Vial [{:04X}:{:04X}]",
+  "Text file": "Plik tekstowy",
+  "Vial macro": "Makro Vial"
 }

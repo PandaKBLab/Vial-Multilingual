@@ -211,6 +211,17 @@ def test_confirmed_restart_launches_before_closing(qapp, tmp_path, monkeypatch):
     manager = LanguageManager(Context(), QSettings(str(tmp_path / "success.ini"), QSettings.IniFormat))
     parent = SimpleNamespace(ui_lock_count=0, editors=[], close=lambda: events.append("close"))
     monkeypatch.setattr(i18n.QProcess, "startDetached", lambda *args: (events.append("launch"), (True, 123))[1])
-    monkeypatch.setattr(i18n.QApplication, "instance", lambda: SimpleNamespace(quit=lambda: events.append("quit")))
+    monkeypatch.setattr(qapp, "quit", lambda: events.append("quit"))
     assert manager.restart(parent)
     assert events == ["launch", "close", "quit"]
+
+def test_synthetic_keyboard_opens_all_editors(qtbot):
+    from test.test_gui import prepare, FAKE_KEYBOARD
+    from pandakb_preview import prepare as prepare_preview
+    window, _ = prepare(qtbot, FAKE_KEYBOARD)
+    prepare_preview(window)
+    assert window.tabs.count() == 11
+    assert window.qmk_settings.tabs_widget.count() == 7
+    assert window.rgb_configurator.handler_vialrgb.rgb_effect.count() > 40
+    assert window.key_override.valid()
+    assert window.alt_repeat_key.valid()

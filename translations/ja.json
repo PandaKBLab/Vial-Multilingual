@@ -741,5 +741,7 @@
   "sideload": "外部読込",
   "Dummy Keyboard": "仮想キーボード",
   "Any": "任意",
-  "Vial Bootloader [{:04X}:{:04X}]": "Vial ブートローダー [{:04X}:{:04X}]"
+  "Vial Bootloader [{:04X}:{:04X}]": "Vial ブートローダー [{:04X}:{:04X}]",
+  "Text file": "テキストファイル",
+  "Vial macro": "Vial マクロ"
 }
