@@ -1,0 +1,45 @@
+name: Review packaged layouts
+on:
+  push:
+    branches: [ci/full-review]
+    paths: ['review-run.json']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  review:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve UI reports and publish inspectable screenshots
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          run_id=$(jq -r .run_id review-run.json)
+          [[ "$run_id" =~ ^[0-9]+$ ]]
+          gh run download "$run_id" --name validation-report --dir report
+          python - <<'PY'
+          import json, pathlib, shutil
+          out = pathlib.Path("validation/screenshots")
+          out.mkdir(parents=True, exist_ok=True)
+          for path in sorted(pathlib.Path("report/smoke").glob("*/smoke-*.json")):
+              print(path.name, path.read_text())
+          selected = ["en/page-en-8.png", "zh_CN/settings-zh_CN-2.png", "de/page-de-6.png",
+                      "ja/page-ja-3.png", "ko/page-ko-0.png", "ru/settings-ru-6.png",
+                      "zh_TW/about-zh_TW.png", "pl/page-pl-7.png"]
+          for relative in selected:
+              source = pathlib.Path("report/smoke") / relative
+              if source.exists():
+                  shutil.copy2(str(source), str(out / source.name))
+          PY
+          cp report/translation-coverage.md validation/
+          cp report/tests.xml validation/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "validation/run-$run_id"
+          git add validation
+          git commit -m "Record packaged UI validation for run $run_id"
+          git push origin "HEAD:refs/heads/validation/run-$run_id"
