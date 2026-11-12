@@ -1,17 +1,9 @@
-# Translation maintenance
+# Translation catalogs
 
-Each locale JSON maps an exact English source string to its translation.
-Keep QMK identifiers, placeholders (including format specifications), HTML tags, URLs and file extensions unchanged.
-Context-specific Qt TS files and binary QM files are generated in CI and included in the translations artifact.
+The 11 JSON catalogs plus the English source cover all 12 supported languages. Keys are exact English source messages. Contexts are extracted from Python and QMK setting definitions; generated layer/tooltips are translated before parameters are inserted.
 
-English is the source and fallback language. A missing entry remains unfinished in TS and is omitted from QM.
-Do not fill missing entries with English merely to improve coverage.
-Established technical names (for example Tap Dance) may intentionally be retained.
-The current dictionaries are initial translations and require native-speaker review.
+Run `python scripts/build_translations.py --strict` with Qt `lrelease` installed. Missing entries, empty values, changed format arguments or changed HTML tags fail validation. Runtime tests compare every compiled catalog entry with its JSON value.
 
-The inventory includes literal tr() calls, main editor tabs, keycode category names, QMK option labels, RGB effect labels and static keycode tooltips.
-It does not yet account for every formatted tooltip, firmware-provided label, platform dialog or diagnostic string.
-The report explicitly states this limitation; full UI review remains required.
+Standard keycap legends and QMK codes remain stable so users can match documentation and firmware. Device-supplied custom names and raw exception diagnostics are outside the built-in catalog. A retained technical term is explicitly recorded in the JSON and still counts as present.
 
-The initial gate requires every locale to contain all sources in core.json.
-Stable release tags additionally run --strict against the full extracted inventory.
+Use natural terminology while preserving modifiers, keycode identifiers, numbers and units. Keep advanced option labels concise; the interface supports word wrapping and scrolling.

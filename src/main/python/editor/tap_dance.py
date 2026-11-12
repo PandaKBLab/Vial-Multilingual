@@ -35,6 +35,7 @@ class TapDanceEntryUI(QObject):
         l.setAlignment(w, QtCore.Qt.AlignHCenter)
         l.addSpacing(10)
         lbl = QLabel(tr("TapDance", "Use <code>TD({})</code> to set up this action in the keymap.").format(self.idx))
+        lbl.setWordWrap(True)
         l.addWidget(lbl)
         l.setAlignment(lbl, QtCore.Qt.AlignHCenter)
         l.addStretch()

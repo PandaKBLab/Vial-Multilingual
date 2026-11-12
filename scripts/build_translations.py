@@ -125,8 +125,8 @@ def main():
     out.mkdir(exist_ok=True)
     (out / "translation-inventory.json").write_text(json.dumps({k: sorted(v) for k, v in inventory.items()}, ensure_ascii=False, indent=2), encoding="utf-8")
     (out / "translation-coverage.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
-    lines = ["# Translation coverage", "", "Counts cover the extracted UI inventory, not every visible string in upstream Vial.",
-             "Advanced tooltips, dynamic descriptions, firmware-supplied labels and diagnostic text still require review.",
+    lines = ["# Translation coverage", "", "Counts cover built-in interface text, settings, effect names, diagnostics and keycode descriptions.",
+             "Firmware-supplied custom names, standard keycap legends, QMK identifiers and raw exception details remain as supplied.",
              "An explicitly retained technical term counts as translated; missing entries fall back to English.",
              "", "| Language | Translated | Extracted | Coverage |", "|---|---:|---:|---:|"]
     for language, data in report.items():

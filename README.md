@@ -1,56 +1,35 @@
-# Vial Multilingual — PandaKB Edition
+# PandaKB Vial Multilingual
 
-A multilingual desktop edition of [Vial](https://github.com/vial-kb/vial-gui), modified by **PandaKB**.
-The About Vial dialog keeps upstream attribution and identifies PandaKB's modifications.
+A Windows portable edition of [Vial](https://get.vial.today/) with 12 interface languages, maintained and modified by **PandaKB**.
 
-**Status: v0.1.0-preview.1 released, with partial translations.** This is not yet a fully translated production release.
-The published build passed 44 automated tests and frozen-EXE startup/About checks in all 12 languages. See [validation results](VALIDATION.md).
+[Download v0.1.0](https://github.com/PandaKBLab/Vial-Multilingual/releases/tag/v0.1.0) · [Source](https://github.com/PandaKBLab/Vial-Multilingual) · [Build checks](https://github.com/PandaKBLab/Vial-Multilingual/actions/workflows/build.yml)
 
-## Download and run
+## 使用方法
 
-Download [PandaKB Vial v0.1.0-preview.1 for Windows x64](https://github.com/PandaKBLab/Vial-Multilingual/releases/download/v0.1.0-preview.1/PandaKB-Vial-v0.1.0-preview.1-Windows-x64.zip).
-Extract the ZIP and run **Vial/Vial.exe**.
-See the [release page](https://github.com/PandaKBLab/Vial-Multilingual/releases/tag/v0.1.0-preview.1) for the checksum, screenshots and translation report.
-Development packages remain available from successful [Windows portable builds](https://github.com/PandaKBLab/Vial-Multilingual/actions/workflows/build.yml).
-Keep the entire Vial folder together. Python and Qt do not need to be installed.
-Tagged releases appear under [Releases](https://github.com/PandaKBLab/Vial-Multilingual/releases).
+1. 从上方版本页面下载 Windows x64 ZIP，完整解压后打开文件夹中的 `Vial.exe`。不要只复制 EXE。
+2. 在 **Settings → Language / 语言** 中选择语言。默认英语，选择会记住。
+3. 选择后可确认立即自动重启。未保存的宏或设置、录制或固件更新期间会保留窗口；先保存或撤销编辑，完成操作后再次选择语言即可重启。
 
-The ZIP includes the license, source commit information, a translation coverage report and a SHA-256 checksum alongside the archive.
+包含英语、简体中文、繁体中文、日语、德语、法语、西班牙语、巴西葡萄牙语、韩语、意大利语、俄语、波兰语。内置菜单、高级设置、键码悬停说明、灯效和常规状态提示都有对应翻译。QMK 标识符、标准键帽文字、设备自行提供的名称及原始异常信息保留原值。
 
-## Languages
+**关于 Vial** 保留原作者与 GPL 信息，并显示 **Modified by PandaKB**。
 
-English (default), 简体中文, 繁體中文, 日本語, Deutsch, Français, Español, Português (Brasil), 한국어, Italiano, Русский, Polski.
+## Windows 首次打开提示
 
-Choose **Settings → Language / 语言**. The preference is saved; close and reopen Vial when convenient to apply it.
-The application does not automatically close, reconnect a keyboard or discard editor state when choosing a language.
-Save pending macro or settings edits before closing, just as in upstream Vial.
+本版未进行商业代码签名，因此 Windows 可能显示“发布者未知”或 SmartScreen 提示。请仅从本仓库版本页面下载，并核对同页的 SHA256 校验值。确认来源后，可以在提示的“更多信息”中选择“仍要运行”；无需关闭系统防护。企业管理策略可能不允许继续。
 
-All language resources are included for offline use. Missing translations fall back to English.
-Menus, main editor tabs and common actions have initial translations in every language.
-Advanced settings, effect names, detailed keycode tooltips, diagnostics and device-supplied descriptions are still being completed.
-Technical identifiers such as QMK keycodes, USB IDs, macro data and protocol fields keep their original values.
-VIA definition downloads retain upstream's network requirement.
+有效签名可以显示经过验证的发布者，但不能保证新版本立即不再提示。详情见 [Microsoft SmartScreen 说明](https://learn.microsoft.com/windows/apps/package-and-deploy/smartscreen-reputation)。
 
-## Build and quality checks
+## Validation and scope
 
-Source import, editing, testing and Windows packaging can all be performed on GitHub without a local checkout.
-The upstream application is pinned to `aef8222a2d0429a183b2ed692d5f9efcfd383f08`; its original commit history and COPYING are preserved.
+GitHub Actions requires complete extracted translation catalogs, checks format placeholders and HTML, runs the upstream regression tests plus language/restart tests, and opens the packaged Windows EXE in all 12 languages. The synthetic keyboard checks cover main editors, all advanced-settings tabs, lighting effects and About. Reports and screenshots are retained as build artifacts.
 
-One workflow validates translation placeholders, generates Qt Linguist TS/QM files, runs upstream simulated-device regressions and PandaKB language tests, freezes the application and launches the actual EXE in all 12 languages.
-Validation artifacts include screenshots, test results, resolved dependency versions and an honest extracted-string coverage report.
-The initial build keeps upstream Python 3.6.8 / PyQt5 5.9.2 / fbs 0.9.0 / PyInstaller 3.4, with compatible packaging-tool pins.
-This legacy stack will require a separate, tested modernization effort.
+Hardware communication tests use simulated devices. Physical keyboard flashing, unlock sequences and manufacturer-specific firmware names require testing with the actual keyboard.
 
-Translations are maintained as readable `translations/<locale>.json` dictionaries.
-The cloud build emits context-specific `.ts` and `.qm` files from the actual source inventory.
-`translations/core.json` defines the first-preview gate; this is not a claim of full UI coverage.
-Stable `v*` tags without a prerelease suffix require complete extracted translations; source extraction and real-device acceptance must also be reviewed before tagging.
-Prerelease tags such as `v0.1.0-preview.1` publish a GitHub prerelease after all build checks pass.
+## Development and license
 
-See [the implementation plan](IMPLEMENTATION.md) and [translation notes](translations/README.md).
+Upstream source: `vial-kb/vial-gui`, pinned at `aef8222a2d0429a183b2ed692d5f9efcfd383f08`. The compatible upstream Python 3.6 / Qt 5.9 build stack is retained for this release. Source edits, translation compilation and Windows packaging are performed in GitHub.
 
-## Attribution and license
+Translations: `translations/*.json`; extraction and validation: `scripts/build_translations.py --strict`. Missing translations block a release. Contributions correcting terminology are welcome.
 
-Original Vial: the Vial contributors. Multilingual modifications: PandaKB.
-This project retains upstream's GNU GPL version 2 or later notices; see [COPYING](COPYING) and [NOTICE](NOTICE).
-This is a PandaKB modification, not an official upstream Vial release.
+Original copyright remains with the Vial contributors. Modifications by PandaKB. See [COPYING](COPYING) and [NOTICE](NOTICE) for GPL-2.0-or-later and attribution.

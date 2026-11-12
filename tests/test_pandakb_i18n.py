@@ -41,7 +41,7 @@ def test_selection_persists_without_rebuilding_or_retranslating(qapp, tmp_path, 
     settings = QSettings(str(tmp_path / "remember.ini"), QSettings.IniFormat)
     manager = LanguageManager(Context(), settings)
     messages = []
-    monkeypatch.setattr(QMessageBox, "information", lambda *args: messages.append(args))
+    monkeypatch.setattr(QMessageBox, "question", lambda *args: (messages.append(args), QMessageBox.No)[1])
     manager.select("zh_CN")
     assert manager.language == "en"
     assert manager.pending_language == "zh_CN"
@@ -101,4 +101,105 @@ def test_translated_category_survives_rebuild(qapp, qtbot, tmp_path):
         assert tabs.currentWidget() is current
     finally:
         KeycodeDisplay.unregister_keymap_override(tabs)
+        manager.unload()
+
+@pytest.mark.parametrize("frozen", [False, True])
+def test_restart_command_supports_source_and_portable(monkeypatch, frozen):
+    import sys
+    import pandakb_i18n as i18n
+    monkeypatch.setattr(sys, "frozen", frozen, raising=False)
+    monkeypatch.setattr(sys, "argv", ["folder with spaces/main.py"])
+    program, arguments = i18n.restart_command()
+    assert program == sys.executable
+    assert arguments[-1] == "--pandakb-wait-for-exit={}".format(os.getpid())
+    assert len(arguments) == (1 if frozen else 2)
+    if not frozen:
+        assert arguments[0] == os.path.abspath(sys.argv[0])
+
+
+def test_restart_failure_leaves_window_open(qapp, tmp_path, monkeypatch):
+    import pandakb_i18n as i18n
+    manager = LanguageManager(Context(), QSettings(str(tmp_path / "restart.ini"), QSettings.IniFormat))
+    monkeypatch.setattr(i18n.QProcess, "startDetached", lambda *args: (False, 0))
+    assert manager.restart(None) is False
+
+
+def test_restart_checks_pending_macro_even_when_save_disabled():
+    from types import SimpleNamespace
+    from pandakb_i18n import restart_blocked
+    editor = SimpleNamespace(valid=lambda: True, macro_tabs=[],
+                             serialize=lambda: b"edited", keyboard=SimpleNamespace(macro=b"saved"))
+    window = SimpleNamespace(ui_lock_count=0, editors=[(editor, "Macros")])
+    assert restart_blocked(window)
+    editor.serialize = lambda: b"saved"
+    assert not restart_blocked(window)
+    window.ui_lock_count = 1
+    assert restart_blocked(window)
+
+
+def test_restart_checks_recording_and_pending_settings():
+    from types import SimpleNamespace
+    from pandakb_i18n import restart_blocked
+    tab = SimpleNamespace(btn_record_stop=SimpleNamespace(isHidden=lambda: False))
+    macro = SimpleNamespace(valid=lambda: True, macro_tabs=[tab],
+                            serialize=lambda: b"saved", keyboard=SimpleNamespace(macro=b"saved"))
+    assert restart_blocked(SimpleNamespace(ui_lock_count=0, editors=[(macro, "Macros")]))
+    setting = SimpleNamespace(valid=lambda: True, btn_save=SimpleNamespace(isEnabled=lambda: True))
+    assert restart_blocked(SimpleNamespace(ui_lock_count=0, editors=[(setting, "Settings")]))
+
+
+def test_language_change_never_launches_during_operation(qapp, tmp_path, monkeypatch):
+    from PyQt5.QtWidgets import QWidget
+    manager = LanguageManager(Context(), QSettings(str(tmp_path / "busy.ini"), QSettings.IniFormat))
+    parent = QWidget()
+    parent.ui_lock_count = 1
+    calls = []
+    monkeypatch.setattr(QMessageBox, "information", lambda *args: calls.append(args))
+    monkeypatch.setattr(manager, "restart", lambda *args: pytest.fail("Restarted during operation"))
+    manager.select("de", parent)
+    assert calls
+    assert manager.pending_language == "de"
+    parent.close()
+
+
+def test_restart_waits_for_real_process():
+    import subprocess
+    import sys
+    from pandakb_i18n import wait_for_previous_process
+    process = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(0.5)"])
+    try:
+        assert wait_for_previous_process(process.pid)
+        assert process.poll() is not None
+    finally:
+        if process.poll() is None:
+            process.terminate()
+        process.wait()
+
+
+@pytest.mark.parametrize("language", [code for code, _ in LANGUAGES])
+def test_all_catalog_entries_and_dynamic_tooltips(qapp, tmp_path, language):
+    import json
+    import xml.etree.ElementTree as ET
+    from keycodes.keycodes import Keycode, KEYCODES_LAYERS, recreate_keyboard_keycodes
+    from types import SimpleNamespace
+    settings = QSettings(str(tmp_path / "complete.ini"), QSettings.IniFormat)
+    settings.setValue("language", language)
+    manager = LanguageManager(Context(), settings)
+    mapping = {} if language == "en" else json.load(open("translations/{}.json".format(language), encoding="utf-8"))
+    root = ET.parse("src/main/resources/base/translations/vial_{}.ts".format(language)).getroot()
+    try:
+        for context in root.findall("context"):
+            for message in context.findall("message"):
+                source = message.findtext("source")
+                expected = source if language == "en" else mapping[source]
+                assert QCoreApplication.translate(context.findtext("name"), source) == expected
+        keyboard = SimpleNamespace(vial_protocol=6, layers=4, macro_count=2, tap_dance_count=2,
+                                   custom_keycodes=None, midi="advanced",
+                                   supported_features={"layer_lock", "persistent_default_layer", "repeat_key", "caps_word"})
+        recreate_keyboard_keycodes(keyboard)
+        expected = QCoreApplication.translate("KeycodeTooltip", "kc on tap, switch to layer {} while held").format(3)
+        assert expected in Keycode.tooltip("LT3(KC_A)")
+        assert "MIDI" in Keycode.tooltip("MI_C") or language == "en"
+        assert Keycode.serialize(Keycode.deserialize("LT3(KC_A)")) == "LT3(KC_A)"
+    finally:
         manager.unload()

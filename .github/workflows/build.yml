@@ -1,7 +1,7 @@
 name: Windows portable
 on:
   push:
-    branches: [main]
+    branches: [main, i18n/full]
     tags: ['v*']
     paths-ignore: ['**.md', 'NOTICE', '.github/workflows/bootstrap.yml']
   pull_request:
@@ -23,7 +23,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends qttools5-dev-tools qttranslations5-l10n
       - name: Validate and compile all 12 languages
         run: |
-          python3 scripts/build_translations.py
+          python3 scripts/build_translations.py --strict
           python3 -m compileall -q src/main/python scripts tests
           cat build/translation-coverage.md >> "$GITHUB_STEP_SUMMARY"
           for file in /usr/share/qt5/translations/qtbase_*.qm; do
@@ -38,6 +38,7 @@ jobs:
           path: |
             src/main/resources/base/translations
             build/translation-coverage.*
+            build/translation-inventory.json
           if-no-files-found: error
 
   windows:

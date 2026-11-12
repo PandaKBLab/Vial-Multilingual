@@ -4,7 +4,7 @@ import time
 from hidproxy import hid
 from protocol.keyboard_comm import Keyboard
 from protocol.dummy_keyboard import DummyKeyboard
-from util import MSG_LEN, pad_for_vibl
+from util import MSG_LEN, pad_for_vibl, tr
 
 
 class VialDevice:
@@ -53,7 +53,7 @@ class VialKeyboard(VialDevice):
     def title(self):
         s = "{} {}".format(self.desc["manufacturer_string"], self.desc["product_string"]).strip()
         if self.sideload:
-            s += " [sideload]"
+            s += " [" + tr("Device", "sideload") + "]"
         elif self.via_stack:
             s += " [VIA]"
         return s
@@ -96,7 +96,7 @@ class VialDummyKeyboard(VialKeyboard):
         self.keyboard.reload(override_json)
 
     def title(self):
-        return "[Dummy Keyboard]"
+        return "[" + tr("Device", "Dummy Keyboard") + "]"
 
     def raise_usb_send(self, *args, **kwargs):
         raise RuntimeError("usb_send - should not be called!")
