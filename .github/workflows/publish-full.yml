@@ -1,0 +1,65 @@
+name: Publish verified full release
+on:
+  push:
+    branches: [release/full-0.1.0]
+    paths: ['release-full.json']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify source, complete catalogs and packaged tests
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          run_id=$(jq -r .run_id release-full.json)
+          expected=$(jq -r .commit release-full.json)
+          version=$(jq -r .version release-full.json)
+          [[ "$run_id" =~ ^[0-9]+$ ]]
+          [[ "$expected" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          gh api "repos/$GH_REPO/actions/runs/$run_id" > /tmp/tested-run.json
+          jq -e --arg sha "$expected" '.conclusion == "success" and .head_sha == $sha and (.head_branch == "main" or .head_branch == "i18n/full") and .path == ".github/workflows/build.yml"' /tmp/tested-run.json
+          actual=$(gh api "repos/$GH_REPO/git/ref/heads/main" --jq .object.sha)
+          test "$actual" = "$expected"
+          gh run download "$run_id" --name PandaKB-Vial-Windows-x64 --dir dist
+          gh run download "$run_id" --name validation-report --dir report
+          python - <<'PY'
+          import json, pathlib, xml.etree.ElementTree as ET
+          languages = ("en", "zh_CN", "zh_TW", "ja", "de", "fr", "es", "pt_BR", "ko", "it", "ru", "pl")
+          coverage = json.loads(pathlib.Path("report/translation-coverage.json").read_text())
+          assert set(coverage) == set(languages)
+          for code in languages:
+              data = coverage[code]
+              assert data["translated"] == data["total"] and not data["missing"]
+              smoke = json.loads(pathlib.Path("report/smoke/{}/smoke-{}.json".format(code, code)).read_text())
+              assert smoke["language"] == code and not smoke["errors"] and not smoke["layout_issues"]
+              assert len(smoke["pages"]) == 11 and smoke["settings_tabs"] == 7
+          suites = list(ET.parse("report/tests.xml").getroot().iter("testsuite"))
+          assert sum(int(suite.get("tests", 0)) for suite in suites) == 67
+          for suite in suites:
+              assert int(suite.get("failures", 0)) == 0 and int(suite.get("errors", 0)) == 0
+          PY
+          sed -i 's/\r$//' dist/SHA256SUMS.txt
+          (cd dist && sha256sum -c SHA256SUMS.txt)
+          mapfile -t packages < <(find dist -maxdepth 1 -name 'PandaKB-Vial-*-Windows-x64.zip')
+          test "${#packages[@]}" -eq 1
+          mv "${packages[0]}" "dist/PandaKB-Vial-$version-Windows-x64.zip"
+          (cd dist && sha256sum *.zip | tee SHA256SUMS.txt)
+          cp report/translation-coverage.md report/translation-coverage.json report/tests.xml dist/
+          cp report/smoke/zh_CN/about-zh_CN.png dist/
+          cp report/smoke/zh_CN/settings-zh_CN-2.png dist/
+          echo "RELEASE_TAG=$version" >> "$GITHUB_ENV"
+          echo "TESTED_COMMIT=$expected" >> "$GITHUB_ENV"
+      - name: Publish the exact validated ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release create "$RELEASE_TAG" dist/* --target "$TESTED_COMMIT" --latest --title "PandaKB Vial $RELEASE_TAG — 12 languages" --notes-file RELEASE_NOTES.md
