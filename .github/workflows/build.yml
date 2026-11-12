@@ -76,65 +76,7 @@ jobs:
           if ($signature.Status -ne "Valid" -or $signature.SignerCertificate.Subject -notmatch "Microsoft") { throw "Invalid Microsoft runtime signature" }
           $installer = Start-Process -FilePath "$env:RUNNER_TEMP/vcredist2012_x64.exe" -ArgumentList "/install", "/quiet", "/norestart" -WindowStyle Hidden -Wait -PassThru
           if ($installer.ExitCode -notin @(0, 1638, 3010)) { throw "Visual C++ 2012 installation failed: $($installer.ExitCode)" }
-          $ucrt = Get-ChildItem -Path "${env:ProgramFiles(x86)}/Windows Kits/10/Redist" -Filter "api-ms-win-crt-multibyte-l1-1-0.dll" -Recurse | Where-Object { $_.DirectoryName -match '\\x64
-        run: |
-          fbs freeze
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Smoke test the frozen EXE in all languages
-        run: |
-          $ErrorActionPreference = "Stop"
-          foreach ($language in @("en", "zh_CN", "zh_TW", "ja", "de", "fr", "es", "pt_BR", "ko", "it", "ru", "pl")) {
-            $smokeOutput = Join-Path (Get-Location) "build/smoke/$language"
-            New-Item -ItemType Directory -Force $smokeOutput | Out-Null
-            $process = Start-Process -FilePath "./target/Vial/Vial.exe" -ArgumentList "--pandakb-smoke-test",$language,$smokeOutput -WindowStyle Hidden -PassThru
-            if (-not $process.WaitForExit(60000)) {
-              Stop-Process -Id $process.Id
-              throw "Frozen application timed out: $language"
-            }
-            if ($process.ExitCode -ne 0) { throw "Frozen application failed: $language ($($process.ExitCode))" }
-            $resultFile = Join-Path $smokeOutput "smoke-$language.json"
-            if (-not (Test-Path $resultFile)) { throw "Missing smoke result: $language" }
-            $result = Get-Content $resultFile -Raw | ConvertFrom-Json
-            if ($result.language -ne $language -or $result.errors.Count -ne 0) { throw "Invalid smoke result: $language" }
-          }
-      - name: Validate and package ZIP with license and checksum
-        run: |
-          python scripts/package_portable.py
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python -m pip freeze | Out-File -Encoding utf8 build/dependency-versions.txt
-      - uses: actions/upload-artifact@v4
-        with:
-          name: PandaKB-Vial-Windows-x64
-          path: dist/*
-          if-no-files-found: error
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: validation-report
-          path: build/
-          if-no-files-found: warn
-
-  release:
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: windows
-    runs-on: ubuntu-22.04
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: PandaKB-Vial-Windows-x64
-          path: dist
-      - name: Publish the validated tagged build
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          RELEASE_TAG: ${{ github.ref_name }}
-        run: |
-          args=()
-          if [[ "$RELEASE_TAG" == *-* ]]; then args+=(--prerelease); fi
-          gh release create "$RELEASE_TAG" dist/* --verify-tag --title "PandaKB Vial $RELEASE_TAG" --generate-notes "${args[@]}"
- } | Select-Object -First 1
+          $ucrt = Get-ChildItem -Path "${env:ProgramFiles(x86)}/Windows Kits/10/Redist" -Filter "api-ms-win-crt-multibyte-l1-1-0.dll" -Recurse | Where-Object { $_.Directory.Name -eq "x64" } | Select-Object -First 1
           if ($ucrt) { $ucrt.DirectoryName | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append }
       - name: Freeze portable application
         run: |
