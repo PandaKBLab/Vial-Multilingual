@@ -29,6 +29,11 @@ jobs:
             git commit -m "Import Vial GUI at aef8222, preserving upstream history"
             git push origin HEAD:main
           fi
+      - name: Build only the pinned upstream sources
+        shell: bash
+        run: |
+          git fetch https://github.com/vial-kb/vial-gui.git aef8222a2d0429a183b2ed692d5f9efcfd383f08
+          git checkout aef8222a2d0429a183b2ed692d5f9efcfd383f08 -- src requirements.txt
       - uses: actions/setup-python@v5
         with:
           python-version: '3.6.8'
@@ -44,6 +49,22 @@ jobs:
           Invoke-WebRequest -Uri "https://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe" -OutFile "$env:RUNNER_TEMP/vcredist_x64.exe"
           $installer = Start-Process -FilePath "$env:RUNNER_TEMP/vcredist_x64.exe" -ArgumentList "/install", "/quiet", "/norestart" -WindowStyle Hidden -Wait -PassThru
           if ($installer.ExitCode -notin @(0, 1638, 3010, 5100)) { throw "Visual C++ runtime installation failed: $($installer.ExitCode)" }
+          Invoke-WebRequest -Uri "https://download.microsoft.com/download/1/6/B/16B06F60-3B20-4FF2-B699-5E9B7962F9AE/VSU4/vcredist_x64.exe" -OutFile "$env:RUNNER_TEMP/vcredist2012_x64.exe"
+          $signature = Get-AuthenticodeSignature "$env:RUNNER_TEMP/vcredist2012_x64.exe"
+          if ($signature.Status -ne "Valid" -or $signature.SignerCertificate.Subject -notmatch "Microsoft") { throw "Invalid Microsoft runtime signature" }
+          $installer = Start-Process -FilePath "$env:RUNNER_TEMP/vcredist2012_x64.exe" -ArgumentList "/install", "/quiet", "/norestart" -WindowStyle Hidden -Wait -PassThru
+          if ($installer.ExitCode -notin @(0, 1638, 3010)) { throw "Visual C++ 2012 installation failed: $($installer.ExitCode)" }
+          $ucrt = Get-ChildItem -Path "${env:ProgramFiles(x86)}/Windows Kits/10/Redist" -Filter "api-ms-win-crt-multibyte-l1-1-0.dll" -Recurse | Where-Object { $_.DirectoryName -match '\\x64
+        run: |
+          fbs freeze
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Compress-Archive -Path target/Vial -DestinationPath Vial-upstream-baseline-Windows-x64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: upstream-baseline-Windows-x64
+          path: Vial-upstream-baseline-Windows-x64.zip
+ } | Select-Object -First 1
+          if ($ucrt) { $ucrt.DirectoryName | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append }
       - name: Freeze upstream baseline
         run: |
           fbs freeze

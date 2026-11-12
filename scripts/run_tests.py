@@ -12,4 +12,4 @@ if sys.platform == "win32":
     sys.modules["hidraw"] = hid
 
 import pytest
-sys.exit(pytest.main(["-q", "src/main/python/test", "tests", "--junitxml=build/tests.xml"]))
+sys.exit(pytest.main(["-vv", "--durations=15", "-o", "faulthandler_timeout=60", "src/main/python/test", "tests", "--junitxml=build/tests.xml"]))

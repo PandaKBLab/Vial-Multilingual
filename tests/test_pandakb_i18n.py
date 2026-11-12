@@ -77,3 +77,28 @@ def test_about_keeps_upstream_and_pandakb_attribution(qtbot, monkeypatch):
     assert "Modified by PandaKB" in body
     assert "get.vial.today" in body
     assert "GNU General Public License" in body
+
+def test_fbs_missing_resource_exception_falls_back(qapp, tmp_path):
+    class Missing:
+        def get_resource(self, path):
+            raise FileNotFoundError(path)
+    settings = QSettings(str(tmp_path / "missing-fbs.ini"), QSettings.IniFormat)
+    settings.setValue("language", "zh_CN")
+    assert LanguageManager(Missing(), settings).language == "en"
+
+def test_translated_category_survives_rebuild(qapp, qtbot, tmp_path):
+    from tabbed_keycodes import FilteredTabbedKeycodes
+    from util import KeycodeDisplay
+    settings = QSettings(str(tmp_path / "category.ini"), QSettings.IniFormat)
+    settings.setValue("language", "zh_CN")
+    manager = LanguageManager(Context(), settings)
+    tabs = FilteredTabbedKeycodes()
+    qtbot.addWidget(tabs)
+    try:
+        tabs.setCurrentIndex(2)
+        current = tabs.currentWidget()
+        tabs.recreate_keycode_buttons()
+        assert tabs.currentWidget() is current
+    finally:
+        KeycodeDisplay.unregister_keymap_override(tabs)
+        manager.unload()

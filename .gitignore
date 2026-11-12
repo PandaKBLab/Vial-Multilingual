@@ -1,8 +1,10 @@
-/venv/
-/target/
+venv
+target
+__pycache__
+*.pyc
+.idea
 
 /build/
 /dist/
-__pycache__/
 .pytest_cache/
 src/main/resources/base/translations/

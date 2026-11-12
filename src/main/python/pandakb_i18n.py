@@ -28,7 +28,11 @@ class LanguageManager(QObject):
             requested = "en"
         if requested != "en":
             translator = QTranslator(self)
-            path = appctx.get_resource("translations/vial_{}.qm".format(requested))
+            try:
+                path = appctx.get_resource("translations/vial_{}.qm".format(requested))
+            except FileNotFoundError:
+                path = ""
+
             if translator.load(path):
                 qt = QTranslator(self)
                 qt_path = os.path.join(os.path.dirname(path), "qtbase_{}.qm".format(requested))
