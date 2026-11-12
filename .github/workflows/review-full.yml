@@ -20,6 +20,12 @@ jobs:
           set -euo pipefail
           run_id=$(jq -r .run_id review-run.json)
           [[ "$run_id" =~ ^[0-9]+$ ]]
+          for attempt in $(seq 1 60); do
+            status=$(gh api "repos/$GH_REPO/actions/runs/$run_id" --jq .status)
+            if [ "$status" = "completed" ]; then break; fi
+            sleep 10
+          done
+          test "$status" = "completed"
           gh run download "$run_id" --name validation-report --dir report
           python - <<'PY'
           import json, pathlib, shutil
