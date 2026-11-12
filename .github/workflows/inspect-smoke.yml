@@ -1,0 +1,19 @@
+name: Inspect packaged smoke result
+on:
+  push:
+    branches: [ci/inspect-packaged-smoke]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  inspect:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Read existing failed smoke report
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh run download 43185201798 --name validation-report --dir report
+          find report -type f
+          find report/smoke -name '*.json' -exec cat {} \;
