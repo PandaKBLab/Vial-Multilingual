@@ -828,7 +828,7 @@ def create_user_keycodes():
             Keycode(
                 "USER{:02}".format(x),
                 "User {}".format(x),
-                "User keycode {}".format(x)
+                tr("KeycodeTooltip", "User keycode {}").format(x)
             )
         )
 

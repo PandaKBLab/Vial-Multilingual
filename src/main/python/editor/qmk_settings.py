@@ -5,7 +5,7 @@ from collections import defaultdict
 from PyQt5 import QtCore
 from PyQt5.QtCore import pyqtSignal, QObject
 from PyQt5.QtWidgets import QVBoxLayout, QCheckBox, QGridLayout, QLabel, QWidget, QSizePolicy, QTabWidget, QSpinBox, \
-    QHBoxLayout, QPushButton, QMessageBox
+    QHBoxLayout, QPushButton, QMessageBox, QScrollArea
 
 from editor.basic_editor import BasicEditor
 from protocol.constants import VIAL_PROTOCOL_QMK_SETTINGS
@@ -26,6 +26,9 @@ class GenericOption(QObject):
         self.container = container
 
         self.lbl = QLabel(tr("QmkSettings", option["title"]))
+        self.lbl.setWordWrap(True)
+        self.lbl.setMaximumWidth(580)
+        self.lbl.setToolTip(self.lbl.text())
         self.container.addWidget(self.lbl, self.row, 0)
 
     def reload(self, keyboard):
@@ -168,8 +171,11 @@ class QmkSettings(BasicEditor):
             l.setAlignment(w, QtCore.Qt.AlignHCenter)
             w2 = QWidget()
             w2.setLayout(l)
-            self.misc_widgets += [w, w2]
-            self.tabs_widget.addTab(w2, tr("QmkSettings", tab["name"]))
+            scroll = QScrollArea()
+            scroll.setWidgetResizable(True)
+            scroll.setWidget(w2)
+            self.misc_widgets += [scroll]
+            self.tabs_widget.addTab(scroll, tr("QmkSettings", tab["name"]))
             self.tabs.append(self.populate_tab(tab, container))
 
     def reload_settings(self):

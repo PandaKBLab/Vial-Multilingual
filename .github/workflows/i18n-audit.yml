@@ -12,6 +12,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Extract source inventory
         run: |
+          python -m compileall -q src/main/python scripts
           python - <<'PY'
           import runpy, json
           data = runpy.run_path("scripts/build_translations.py")

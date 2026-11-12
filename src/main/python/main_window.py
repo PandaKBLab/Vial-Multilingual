@@ -316,14 +316,14 @@ class MainWindow(QMainWindow):
         try:
             self.autorefresh.select_device(self.combobox_devices.currentIndex())
         except ProtocolError:
-            QMessageBox.warning(self, "", "Unsupported protocol version!\n"
-                                          "Please download latest Vial from https://get.vial.today/")
+            QMessageBox.warning(self, "", tr("MainWindow", "Unsupported protocol version!\n"
+                                          "Please download latest Vial from https://get.vial.today/"))
 
         if isinstance(self.autorefresh.current_device, VialKeyboard):
             keyboard_id = self.autorefresh.current_device.keyboard.keyboard_id
             if (keyboard_id in EXAMPLE_KEYBOARDS) or ((keyboard_id & 0xFFFFFFFFFFFFFF) == EXAMPLE_KEYBOARD_PREFIX):
-                QMessageBox.warning(self, "", "An example keyboard UID was detected.\n"
-                                              "Please change your keyboard UID to be unique before you ship!")
+                QMessageBox.warning(self, "", tr("MainWindow", "An example keyboard UID was detected.\n"
+                                              "Please change your keyboard UID to be unique before you ship!"))
 
         self.rebuild()
         self.refresh_tabs()
@@ -446,11 +446,11 @@ class MainWindow(QMainWindow):
     def about_vial(self):
         title = tr("PandaKB", "About Vial — PandaKB Edition")
         text = 'Vial {}<br><br>Python {}<br>Qt {}<br><br>' \
-               'Licensed under the terms of the<br>GNU General Public License (version 2 or later)<br><br>' \
                '<a href="https://get.vial.today/">https://get.vial.today/</a>' \
                .format(qApp.applicationVersion(),
                        platform.python_version(), QT_VERSION_STR)
 
+        text += "<br><br>" + tr("PandaKB", "Licensed under the GNU General Public License (version 2 or later).")
         text += '<br><br><b>PandaKB Edition {}</b><br>{}<br>Modified by PandaKB<br>' \
                 '<a href="https://github.com/PandaKBLab/Vial-Multilingual">PandaKB / Vial-Multilingual</a>' \
                 '<br><br>{}'.format(PANDAKB_VERSION, tr("PandaKB", "Modified by PandaKB"),
