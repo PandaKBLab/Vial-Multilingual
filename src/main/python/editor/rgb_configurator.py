@@ -167,7 +167,7 @@ class QmkRgblightHandler(BasicHandler):
         container.addWidget(self.lbl_underglow_effect, row, 0)
         self.underglow_effect = QComboBox()
         for ef in QMK_RGBLIGHT_EFFECTS:
-            self.underglow_effect.addItem(ef.name)
+            self.underglow_effect.addItem(tr("RGBEffects", ef.name))
         container.addWidget(self.underglow_effect, row, 1)
 
         self.lbl_underglow_brightness = QLabel(tr("RGBConfigurator", "Underglow Brightness"))
@@ -359,7 +359,7 @@ class VialRGBHandler(BasicHandler):
 
         self.rgb_effect.clear()
         for effect in self.effects:
-            self.rgb_effect.addItem(effect.name)
+            self.rgb_effect.addItem(tr("RGBEffects", effect.name))
 
     def update_from_keyboard(self):
         if not self.valid():

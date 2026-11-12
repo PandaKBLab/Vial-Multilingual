@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 import sys
+from PyQt5.QtCore import QCoreApplication
 
 from keycodes.keycodes_v5 import keycodes_v5
 from keycodes.keycodes_v6 import keycodes_v6
@@ -101,7 +102,7 @@ class Keycode:
             return None
         tooltip = keycode.qmk_id
         if keycode.tooltip:
-            tooltip = "{}: {}".format(tooltip, keycode.tooltip)
+            tooltip = "{}: {}".format(tooltip, QCoreApplication.translate("KeycodeTooltip", keycode.tooltip))
         return tooltip
 
     @classmethod

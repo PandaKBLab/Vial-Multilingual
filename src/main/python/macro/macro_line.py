@@ -1,5 +1,6 @@
 # coding: utf-8
 # SPDX-License-Identifier: GPL-2.0-or-later
+from util import tr
 from PyQt5.QtCore import QObject, pyqtSignal, Qt
 from PyQt5.QtWidgets import QHBoxLayout, QToolButton, QComboBox
 
@@ -39,7 +40,7 @@ class MacroLine(QObject):
         self.arrows.setSpacing(0)
 
         self.select_type = QComboBox()
-        self.select_type.addItems(self.types)
+        self.select_type.addItems([tr("MacroLine", label) for label in self.types])
         self.select_type.setCurrentIndex(self.type_to_cls.index(type(action)))
         self.select_type.currentIndexChanged.connect(self.on_change_type)
 

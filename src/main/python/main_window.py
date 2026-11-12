@@ -33,6 +33,7 @@ from vial_device import VialKeyboard
 from editor.matrix_test import MatrixTest
 
 import themes
+from pandakb_i18n import get_language_manager, PANDAKB_VERSION
 
 
 class MainWindow(QMainWindow):
@@ -40,6 +41,8 @@ class MainWindow(QMainWindow):
     def __init__(self, appctx):
         super().__init__()
         self.appctx = appctx
+        self.language_manager = get_language_manager(appctx)
+        self.setWindowTitle("Vial — PandaKB Edition")
 
         self.ui_lock_count = 0
 
@@ -100,14 +103,15 @@ class MainWindow(QMainWindow):
         self.tabs.currentChanged.connect(self.on_tab_changed)
         self.refresh_tabs()
 
-        no_devices = 'No devices detected. Connect a Vial-compatible device and press "Refresh"<br>' \
-                     'or select "File" → "Download VIA definitions" in order to enable support for VIA keyboards.'
+        no_devices = tr("MainWindow", 'No devices detected. Connect a Vial-compatible device and press "Refresh"<br>'
+                        'or select "File" → "Download VIA definitions" in order to enable support for VIA keyboards.')
         if sys.platform.startswith("linux"):
             no_devices += '<br><br>On Linux you need to set up a custom udev rule for keyboards to be detected. ' \
                           'Follow the instructions linked below:<br>' \
                           '<a href="https://get.vial.today/manual/linux-udev.html">https://get.vial.today/manual/linux-udev.html</a>'
-        self.lbl_no_devices = QLabel(tr("MainWindow", no_devices))
+        self.lbl_no_devices = QLabel(no_devices)
         self.lbl_no_devices.setTextFormat(Qt.RichText)
+        self.lbl_no_devices.setWordWrap(True)
         self.lbl_no_devices.setAlignment(Qt.AlignCenter)
 
         layout = QVBoxLayout()
@@ -233,6 +237,8 @@ class MainWindow(QMainWindow):
             if theme_group.checkedAction() is None:
                 theme_group.actions()[0].setChecked(True)
 
+        self.language_manager.add_menu(self.menuBar())
+
         about_vial_act = QAction(tr("MenuAbout", "About Vial..."), self)
         about_vial_act.triggered.connect(self.about_vial)
         self.about_keyboard_act = QAction("", self)
@@ -259,7 +265,7 @@ class MainWindow(QMainWindow):
             dialog = QFileDialog()
             dialog.setDefaultSuffix("vil")
             dialog.setAcceptMode(QFileDialog.AcceptOpen)
-            dialog.setNameFilters(["Vial layout (*.vil)"])
+            dialog.setNameFilters([tr("FileDialog", "Vial layout (*.vil)")])
             if dialog.exec_() == QDialog.Accepted:
                 with open(dialog.selectedFiles()[0], "rb") as inf:
                     data = inf.read()
@@ -277,7 +283,7 @@ class MainWindow(QMainWindow):
             dialog = QFileDialog()
             dialog.setDefaultSuffix("vil")
             dialog.setAcceptMode(QFileDialog.AcceptSave)
-            dialog.setNameFilters(["Vial layout (*.vil)"])
+            dialog.setNameFilters([tr("FileDialog", "Vial layout (*.vil)")])
             if dialog.exec_() == QDialog.Accepted:
                 with open(dialog.selectedFiles()[0], "wb") as outf:
                     outf.write(self.keymap_editor.save_layout())
@@ -328,7 +334,7 @@ class MainWindow(QMainWindow):
 
         self.about_keyboard_act.setVisible(False)
         if isinstance(self.autorefresh.current_device, VialKeyboard):
-            self.about_keyboard_act.setText("About {}...".format(self.autorefresh.current_device.title()))
+            self.about_keyboard_act.setText(tr("MenuAbout", "About {}...").format(self.autorefresh.current_device.title()))
             self.about_keyboard_act.setVisible(True)
 
         # if unlock process was interrupted, we must finish it first
@@ -364,7 +370,7 @@ class MainWindow(QMainWindow):
         dialog = QFileDialog()
         dialog.setDefaultSuffix("json")
         dialog.setAcceptMode(QFileDialog.AcceptOpen)
-        dialog.setNameFilters(["VIA layout JSON (*.json)"])
+        dialog.setNameFilters([tr("FileDialog", "VIA layout JSON (*.json)")])
         if dialog.exec_() == QDialog.Accepted:
             with open(dialog.selectedFiles()[0], "rb") as inf:
                 data = inf.read()
@@ -374,7 +380,7 @@ class MainWindow(QMainWindow):
         dialog = QFileDialog()
         dialog.setDefaultSuffix("json")
         dialog.setAcceptMode(QFileDialog.AcceptOpen)
-        dialog.setNameFilters(["VIA layout JSON (*.json)"])
+        dialog.setNameFilters([tr("FileDialog", "VIA layout JSON (*.json)")])
         if dialog.exec_() == QDialog.Accepted:
             with open(dialog.selectedFiles()[0], "rb") as inf:
                 data = inf.read()
@@ -438,13 +444,17 @@ class MainWindow(QMainWindow):
         self.current_tab = new_tab
 
     def about_vial(self):
-        title = "About Vial"
+        title = tr("PandaKB", "About Vial — PandaKB Edition")
         text = 'Vial {}<br><br>Python {}<br>Qt {}<br><br>' \
                'Licensed under the terms of the<br>GNU General Public License (version 2 or later)<br><br>' \
                '<a href="https://get.vial.today/">https://get.vial.today/</a>' \
                .format(qApp.applicationVersion(),
                        platform.python_version(), QT_VERSION_STR)
 
+        text += '<br><br><b>PandaKB Edition {}</b><br>{}<br>Modified by PandaKB<br>' \
+                '<a href="https://github.com/PandaKBLab/Vial-Multilingual">PandaKB / Vial-Multilingual</a>' \
+                '<br><br>{}'.format(PANDAKB_VERSION, tr("PandaKB", "Modified by PandaKB"),
+                                   tr("PandaKB", "Based on Vial by the Vial contributors."))
         if sys.platform == "emscripten":
             self.msg_about = QMessageBox()
             self.msg_about.setWindowTitle(title)

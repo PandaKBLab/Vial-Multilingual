@@ -39,6 +39,11 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -m pip install -r requirements.txt
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Install upstream legacy Visual C++ runtime
+        run: |
+          Invoke-WebRequest -Uri "https://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe" -OutFile "$env:RUNNER_TEMP/vcredist_x64.exe"
+          $installer = Start-Process -FilePath "$env:RUNNER_TEMP/vcredist_x64.exe" -ArgumentList "/install", "/quiet", "/norestart" -WindowStyle Hidden -Wait -PassThru
+          if ($installer.ExitCode -notin @(0, 1638, 3010, 5100)) { throw "Visual C++ runtime installation failed: $($installer.ExitCode)" }
       - name: Freeze upstream baseline
         run: |
           fbs freeze

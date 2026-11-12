@@ -1,0 +1,14 @@
+PandaKB Vial Multilingual
+Interface language support, translation resources, About attribution, and Windows CI modifications by PandaKB (2026).
+
+Based on Vial GUI by the Vial contributors:
+https://github.com/vial-kb/vial-gui
+Pinned upstream commit: aef8222a2d0429a183b2ed692d5f9efcfd383f08
+
+Original copyright and SPDX license notices remain in the source files.
+Vial source files state GPL-2.0-or-later. See COPYING for the GPL version 2 text.
+The modified source and build instructions are available at:
+https://github.com/PandaKBLab/Vial-Multilingual
+
+Dependencies retain their respective licenses. This distribution includes the upstream
+runtime components collected by fbs/PyInstaller and Qt translation resources.

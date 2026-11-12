@@ -77,6 +77,9 @@ if __name__ == '__main__':
         linux_keystroke_recorder()
     else:
         appctxt = VialApplicationContext()       # 1. Instantiate ApplicationContext
+        if len(sys.argv) == 4 and sys.argv[1] == "--pandakb-smoke-test":
+            from pandakb_smoke import run
+            sys.exit(run(appctxt, sys.argv[2], sys.argv[3]))
         init_logger()
         qt_exception_hook = UncaughtHook()
         window = MainWindow(appctxt)

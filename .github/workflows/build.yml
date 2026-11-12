@@ -1,0 +1,130 @@
+name: Windows portable
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+    paths-ignore: ['**.md', 'NOTICE', '.github/workflows/bootstrap.yml']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: portable-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  translations:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Qt translation compiler
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends qttools5-dev-tools qttranslations5-l10n
+      - name: Validate and compile all 12 languages
+        run: |
+          python3 scripts/build_translations.py
+          python3 -m compileall -q src/main/python scripts tests
+          cat build/translation-coverage.md >> "$GITHUB_STEP_SUMMARY"
+          for file in /usr/share/qt5/translations/qtbase_*.qm; do
+            cp "$file" src/main/resources/base/translations/
+          done
+      - name: Require complete extracted translations for stable tags
+        if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, '-')
+        run: python3 scripts/build_translations.py --strict
+      - uses: actions/upload-artifact@v4
+        with:
+          name: translations
+          path: |
+            src/main/resources/base/translations
+            build/translation-coverage.*
+          if-no-files-found: error
+
+  windows:
+    needs: translations
+    runs-on: windows-2022
+    env:
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: translations
+          path: .
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.6.8'
+          architecture: x64
+      - name: Install upstream-compatible dependencies
+        run: |
+          python -m pip install "pip==21.3.1" "setuptools==57.5.0" "wheel==0.37.1" "Cython==0.29.36"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pip install -r requirements.txt "pytest==6.2.5" "pytest-qt==3.3.0"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Run upstream regressions and language tests
+        run: |
+          python scripts/run_tests.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Install upstream legacy Visual C++ runtime
+        run: |
+          Invoke-WebRequest -Uri "https://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe" -OutFile "$env:RUNNER_TEMP/vcredist_x64.exe"
+          $installer = Start-Process -FilePath "$env:RUNNER_TEMP/vcredist_x64.exe" -ArgumentList "/install", "/quiet", "/norestart" -WindowStyle Hidden -Wait -PassThru
+          if ($installer.ExitCode -notin @(0, 1638, 3010, 5100)) { throw "Visual C++ runtime installation failed: $($installer.ExitCode)" }
+      - name: Freeze portable application
+        run: |
+          fbs freeze
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Smoke test the frozen EXE in all languages
+        run: |
+          $ErrorActionPreference = "Stop"
+          foreach ($language in @("en", "zh_CN", "zh_TW", "ja", "de", "fr", "es", "pt_BR", "ko", "it", "ru", "pl")) {
+            $smokeOutput = Join-Path (Get-Location) "build/smoke/$language"
+            New-Item -ItemType Directory -Force $smokeOutput | Out-Null
+            $process = Start-Process -FilePath "./target/Vial/Vial.exe" -ArgumentList "--pandakb-smoke-test",$language,$smokeOutput -WindowStyle Hidden -PassThru
+            if (-not $process.WaitForExit(60000)) {
+              Stop-Process -Id $process.Id
+              throw "Frozen application timed out: $language"
+            }
+            if ($process.ExitCode -ne 0) { throw "Frozen application failed: $language ($($process.ExitCode))" }
+            $resultFile = Join-Path $smokeOutput "smoke-$language.json"
+            if (-not (Test-Path $resultFile)) { throw "Missing smoke result: $language" }
+            $result = Get-Content $resultFile -Raw | ConvertFrom-Json
+            if ($result.language -ne $language -or $result.errors.Count -ne 0) { throw "Invalid smoke result: $language" }
+          }
+      - name: Validate and package ZIP with license and checksum
+        run: |
+          python scripts/package_portable.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pip freeze | Out-File -Encoding utf8 build/dependency-versions.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PandaKB-Vial-Windows-x64
+          path: dist/*
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: validation-report
+          path: build/
+          if-no-files-found: warn
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: windows
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: PandaKB-Vial-Windows-x64
+          path: dist
+      - name: Publish the validated tagged build
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          args=()
+          if [[ "$RELEASE_TAG" == *-* ]]; then args+=(--prerelease); fi
+          gh release create "$RELEASE_TAG" dist/* --verify-tag --title "PandaKB Vial $RELEASE_TAG" --generate-notes "${args[@]}"
