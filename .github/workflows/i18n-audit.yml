@@ -1,0 +1,20 @@
+name: Translation audit
+on:
+  push:
+    branches: [i18n/full]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  audit:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract source inventory
+        run: |
+          python - <<'PY'
+          import runpy, json
+          data = runpy.run_path("scripts/build_translations.py")
+          data["extract"]()
+          print("INVENTORY_JSON=" + json.dumps({k: sorted(v) for k,v in data["inventory"].items()}, ensure_ascii=False))
+          PY

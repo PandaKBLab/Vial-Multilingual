@@ -5,6 +5,8 @@
 import sys
 from PyQt5.QtCore import QCoreApplication
 
+tr = QCoreApplication.translate
+
 from keycodes.keycodes_v5 import keycodes_v5
 from keycodes.keycodes_v6 import keycodes_v6
 
@@ -734,7 +736,7 @@ KEYCODES_MIDI_ADVANCED = [
     K("MI_OCTD", "ᴹᴵᴰᴵ\nOctᴰᴺ", "Midi move down an octave"),
     K("MI_OCTU", "ᴹᴵᴰᴵ\nOctᵁᴾ", "Midi move up an octave"),
 
-    K("MI_TRNS_N6", "ᴹᴵᴰᴵ\nTrans₋₆", "Midi set transposition to -4 semitones"),
+    K("MI_TRNS_N6", "ᴹᴵᴰᴵ\nTrans₋₆", "Midi set transposition to -6 semitones"),
     K("MI_TRNS_N5", "ᴹᴵᴰᴵ\nTrans₋₅", "Midi set transposition to -5 semitones"),
     K("MI_TRNS_N4", "ᴹᴵᴰᴵ\nTrans₋₄", "Midi set transposition to -4 semitones"),
     K("MI_TRNS_N3", "ᴹᴵᴰᴵ\nTrans₋₃", "Midi set transposition to -3 semitones"),
@@ -901,7 +903,7 @@ def recreate_keyboard_keycodes(keyboard):
 
     for x in range(min(layers, 16)):
         KEYCODES_LAYERS.append(Keycode("LT{}(kc)".format(x), "LT {}\n(kc)".format(x),
-                                       "kc on tap, switch to layer {} while held".format(x), masked=True))
+                                       tr("KeycodeTooltip", "kc on tap, switch to layer {} while held").format(x), masked=True))
 
     KEYCODES_MACRO.clear()
     for x in range(keyboard.macro_count):

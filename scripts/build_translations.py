@@ -44,18 +44,25 @@ def extract():
                         add(context, source)
                 if path.name == "rgb_configurator.py" and name in ("QmkRgblightEffect", "VialRGBEffect"):
                     add("RGBEffects", literal(n.args[1]))
-                if path.name == "keycodes.py" and name == "K":
+                if path.name == "keycodes.py" and name in ("K", "Keycode"):
                     if len(n.args) >= 3:
                         add("KeycodeTooltip", literal(n.args[2]))
                     for kw in n.keywords:
                         if kw.arg == "tooltip":
                             add("KeycodeTooltip", literal(kw.value))
+                if path.name == "keycodes.py" and name == "generate_keycodes_for_mask":
+                    add("KeycodeTooltip", literal(n.args[1]))
                 if path.name == "tabbed_keycodes.py" and name in ("Tab", "SimpleTab"):
                     add("TabbedKeycodes", literal(n.args[1]))
             if isinstance(n, ast.Assign):
                 if path.name == "main_window.py" and any(isinstance(t, ast.Attribute) and t.attr == "editors" for t in n.targets):
                     for value in strings(n.value):
                         add("MainWindow", value)
+    keymaps = ast.parse((SRC / "keymaps.py").read_text(encoding="utf-8"))
+    for node in ast.walk(keymaps):
+        if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "KEYMAPS" for t in node.targets):
+            for entry in node.value.elts:
+                add("KeyboardLayout", literal(entry.elts[0]))
     for value in ("Text", "Down", "Up", "Tap", "Delay (ms)"):
         add("MacroLine", value)
     for value in ("System", "Dark", "Light"):
@@ -116,6 +123,7 @@ def main():
         }
     out = ROOT / "build"
     out.mkdir(exist_ok=True)
+    (out / "translation-inventory.json").write_text(json.dumps({k: sorted(v) for k, v in inventory.items()}, ensure_ascii=False, indent=2), encoding="utf-8")
     (out / "translation-coverage.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     lines = ["# Translation coverage", "", "Counts cover the extracted UI inventory, not every visible string in upstream Vial.",
              "Advanced tooltips, dynamic descriptions, firmware-supplied labels and diagnostic text still require review.",
