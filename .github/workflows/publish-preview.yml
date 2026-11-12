@@ -1,0 +1,53 @@
+name: Publish tested preview
+on:
+  push:
+    branches: [release/preview-0.1.0]
+    paths: ['release-preview.json']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify the exact tested source and retrieve artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          run_id=$(jq -r .run_id release-preview.json)
+          expected=$(jq -r .commit release-preview.json)
+          version=$(jq -r .version release-preview.json)
+          [[ "$run_id" =~ ^[0-9]+$ ]]
+          [[ "$expected" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-preview\.[0-9]+$ ]]
+          gh api "repos/$GH_REPO/actions/runs/$run_id" > /tmp/tested-run.json
+          jq -e --arg sha "$expected" '.conclusion == "success" and .head_sha == $sha and .head_branch == "main" and .path == ".github/workflows/build.yml"' /tmp/tested-run.json
+          gh run download "$run_id" --name PandaKB-Vial-Windows-x64 --dir dist
+          gh run download "$run_id" --name validation-report --dir report
+          (cd dist && sha256sum -c SHA256SUMS.txt)
+          mapfile -t packages < <(find dist -maxdepth 1 -name 'PandaKB-Vial-*-Windows-x64.zip')
+          test "${#packages[@]}" -eq 1
+          mv "${packages[0]}" "dist/PandaKB-Vial-$version-Windows-x64.zip"
+          (cd dist && sha256sum *.zip > SHA256SUMS.txt)
+          cp report/translation-coverage.md dist/
+          cp report/smoke/zh_CN/about-zh_CN.png dist/
+          cp report/smoke/zh_CN/main-zh_CN.png dist/
+          cp report/tests.xml dist/
+          for preview in about-zh_CN main-zh_CN; do
+            base64 -w 0 "dist/$preview.png" > /tmp/preview-base64.txt
+            jq -n --rawfile content /tmp/preview-base64.txt '{encoding:"base64", content:$content}' > /tmp/preview-blob.json
+            sha=$(gh api "repos/$GH_REPO/git/blobs" --method POST --input /tmp/preview-blob.json --jq .sha)
+            echo "PREVIEW_BLOB $preview $sha"
+          done
+          echo "RELEASE_TAG=$version" >> "$GITHUB_ENV"
+          echo "TESTED_COMMIT=$expected" >> "$GITHUB_ENV"
+      - name: Publish preview without rebuilding the validated ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release create "$RELEASE_TAG" dist/* --target "$TESTED_COMMIT" --prerelease --title "PandaKB Vial $RELEASE_TAG" --notes-file RELEASE_NOTES.md
