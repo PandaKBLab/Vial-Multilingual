@@ -112,6 +112,8 @@ class MainWindow(QMainWindow):
         self.lbl_no_devices = QLabel(no_devices)
         self.lbl_no_devices.setTextFormat(Qt.RichText)
         self.lbl_no_devices.setWordWrap(True)
+        self.lbl_no_devices.setMinimumWidth(560)
+        self.lbl_no_devices.setMaximumWidth(800)
         self.lbl_no_devices.setAlignment(Qt.AlignCenter)
 
         layout = QVBoxLayout()

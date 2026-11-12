@@ -221,6 +221,8 @@ def test_synthetic_keyboard_opens_all_editors(qtbot):
     window, _ = prepare(qtbot, FAKE_KEYBOARD)
     prepare_preview(window)
     assert window.tabs.count() == 11
+    assert window.tabs.isVisible()
+    assert not window.lbl_no_devices.isVisible()
     assert window.qmk_settings.tabs_widget.count() == 7
     assert window.rgb_configurator.handler_vialrgb.rgb_effect.count() > 40
     assert window.key_override.valid()

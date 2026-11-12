@@ -43,6 +43,7 @@ def prepare(window):
     recreate_keyboard_keycodes(keyboard)
     window.autorefresh._lock()
     window.autorefresh.current_device = device
+    window.on_devices_updated([device], False)
     window.rebuild()
     window.refresh_tabs()
     return device

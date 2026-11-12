@@ -69,6 +69,8 @@ def run(appctx, language, directory):
                 window.tabs.setCurrentIndex(index)
                 app.processEvents()
                 page = window.tabs.widget(index)
+                assert page.isVisible(), "Editor page is hidden"
+                assert not window.lbl_no_devices.isVisible(), "No-device page covers the editor"
                 name = window.editors[[e[0] for e in window.editors].index(page.editor)][1]
                 result["pages"].append(name)
                 assert window.grab().save(os.path.join(directory, "page-{}-{}.png".format(language, index)))
