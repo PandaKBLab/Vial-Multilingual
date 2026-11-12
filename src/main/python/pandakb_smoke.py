@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 """Opt-in CI smoke test for the frozen portable application."""
+import faulthandler
 import json
 import os
 from PyQt5.QtCore import QSettings, QTimer, QCoreApplication
@@ -11,6 +12,8 @@ def run(appctx, language, directory):
     from hidproxy import hid
     hid.enumerate = lambda: []
     os.makedirs(directory, exist_ok=True)
+    crash_log = open(os.path.join(directory, "native-crash.log"), "w")
+    faulthandler.enable(file=crash_log)
     app = appctx.app
     settings = QSettings(os.path.join(directory, "smoke.ini"), QSettings.IniFormat)
     settings.setValue("language", language)
