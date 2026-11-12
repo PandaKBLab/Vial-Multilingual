@@ -258,7 +258,7 @@ def test_key_change(qtbot):
 
     # clicking on first key must activate it
     point = mw.keymap_editor.container.widgets[0].bbox[0]
-    qtbot.mouseClick(mw.keymap_editor.container, qt_api.QtCore.Qt.MouseButton.LeftButton,
+    qtbot.mouseClick(mw.keymap_editor.container, qt_api.QtCore.Qt.LeftButton,
                      pos=QPoint(int(point.x()), int(point.y())))
 
     assert mw.keymap_editor.container.active_key == mw.keymap_editor.container.widgets[0]
@@ -275,7 +275,7 @@ def test_key_change(qtbot):
     assert ak.tabText(ak.currentIndex()) == "Basic"
     btn = ak.widget(0).layout.itemAt(3).widget().buttons[3]
     assert btn.text == "B"
-    qtbot.mouseClick(btn, qt_api.QtCore.Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(btn, qt_api.QtCore.Qt.LeftButton)
 
     # check the new keycode is KC_B
     assert vk.keymap[0][0][0] == 5
@@ -295,7 +295,7 @@ def test_key_change(qtbot):
 
     # change current key to a masked LCTL()
     btn = find_key_btn(ak, "LCtl\n(kc)")
-    qtbot.mouseClick(btn, qt_api.QtCore.Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(btn, qt_api.QtCore.Qt.LeftButton)
 
     # check the new keycode is LCTL()
     assert vk.keymap[0][0][1] == 0x100
@@ -305,7 +305,7 @@ def test_key_change(qtbot):
 
     # click back on the second key
     point = mw.keymap_editor.container.widgets[1].bbox[0]
-    qtbot.mouseClick(mw.keymap_editor.container, qt_api.QtCore.Qt.MouseButton.LeftButton,
+    qtbot.mouseClick(mw.keymap_editor.container, qt_api.QtCore.Qt.LeftButton,
                      pos=QPoint(int(point.x()), int(point.y())))
 
     # check that we have the second key selected & it's not a mask
@@ -318,7 +318,7 @@ def test_key_change(qtbot):
     max_x = max(p.x() for p in bbox)
     min_y = min(p.y() for p in bbox)
     max_y = max(p.y() for p in bbox)
-    qtbot.mouseClick(mw.keymap_editor.container, qt_api.QtCore.Qt.MouseButton.LeftButton,
+    qtbot.mouseClick(mw.keymap_editor.container, qt_api.QtCore.Qt.LeftButton,
                      pos=QPoint(int((min_x + max_x) / 2), int(min_y + (max_y - min_y) * 4/5)))
     # now we must have the inner selected on the same key
     assert mw.keymap_editor.container.active_key == mw.keymap_editor.container.widgets[1]
@@ -330,7 +330,7 @@ def test_key_change(qtbot):
 
     # let's set key C
     btn = find_key_btn(bk, "C")
-    qtbot.mouseClick(btn, qt_api.QtCore.Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(btn, qt_api.QtCore.Qt.LeftButton)
 
     # check the new keycode is LCTL(KC_C)
     assert vk.keymap[0][0][1] == 0x106
@@ -356,17 +356,17 @@ def test_keymap_zoom(qtbot):
     scale_initial = mw.keymap_editor.container.scale
 
     # click the plus button
-    qtbot.mouseClick(btn_plus, qt_api.QtCore.Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(btn_plus, qt_api.QtCore.Qt.LeftButton)
     # area got bigger
     assert mw.keymap_editor.container.scale > scale_initial
 
     # click the minus button
-    qtbot.mouseClick(btn_minus, qt_api.QtCore.Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(btn_minus, qt_api.QtCore.Qt.LeftButton)
     # area back to the initial
     assert abs(mw.keymap_editor.container.scale - scale_initial) < 0.01
 
     # click the minus button
-    qtbot.mouseClick(btn_minus, qt_api.QtCore.Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(btn_minus, qt_api.QtCore.Qt.LeftButton)
     # area got smaller
     assert mw.keymap_editor.container.scale < scale_initial
 
@@ -391,12 +391,12 @@ def test_layer_switch(qtbot):
 
     # clicking on first key must activate it
     point = c.widgets[0].bbox[0]
-    qtbot.mouseClick(c, qt_api.QtCore.Qt.MouseButton.LeftButton,
+    qtbot.mouseClick(c, qt_api.QtCore.Qt.LeftButton,
                      pos=QPoint(int(point.x()), int(point.y())))
     assert c.active_key == c.widgets[0]
 
     # change current key to Z
-    qtbot.mouseClick(find_key_btn(ak, "Z"), qt_api.QtCore.Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(find_key_btn(ak, "Z"), qt_api.QtCore.Qt.LeftButton)
     assert vk.keymap[0][0][0] == 0x1D
     assert vk.keymap[1][0][0] == 0
 
@@ -413,7 +413,7 @@ def test_layer_switch(qtbot):
     assert QPushButton.text(btn_layer_0) == "0"
     assert QPushButton.text(btn_layer_1) == "1"
 
-    qtbot.mouseClick(btn_layer_1, qt_api.QtCore.Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(btn_layer_1, qt_api.QtCore.Qt.LeftButton)
     # check the current key got deselected
     assert c.active_key is None
     assert not c.active_mask
@@ -422,12 +422,12 @@ def test_layer_switch(qtbot):
     assert c.widgets[0].text == ""
 
     # click the key again
-    qtbot.mouseClick(c, qt_api.QtCore.Qt.MouseButton.LeftButton,
+    qtbot.mouseClick(c, qt_api.QtCore.Qt.LeftButton,
                      pos=QPoint(int(point.x()), int(point.y())))
     assert c.active_key == c.widgets[0]
 
     # change current key to Y
-    qtbot.mouseClick(find_key_btn(ak, "Y"), qt_api.QtCore.Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(find_key_btn(ak, "Y"), qt_api.QtCore.Qt.LeftButton)
     assert vk.keymap[0][0][0] == 0x1D
     assert vk.keymap[1][0][0] == 0x1C
 
@@ -435,7 +435,7 @@ def test_layer_switch(qtbot):
     assert c.widgets[0].text == "Y"
 
     # go back to the layer 0 and make sure the button got redrawn to Z
-    qtbot.mouseClick(btn_layer_0, qt_api.QtCore.Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(btn_layer_0, qt_api.QtCore.Qt.LeftButton)
     assert c.widgets[0].text == "Z"
 
 
@@ -481,15 +481,15 @@ def test_combos(qtbot):
     max_y = max(p.y() for p in bbox)
     pos_mask = QPoint(int((min_x + max_x) / 2), int(min_y + (max_y - min_y) * 4/5))
     pos = QPoint(bbox[0].x(), bbox[0].y())
-    qtbot.mouseClick(w[0], qt_api.QtCore.Qt.MouseButton.LeftButton, pos=pos)
+    qtbot.mouseClick(w[0], qt_api.QtCore.Qt.LeftButton, pos=pos)
     assert mw.tray_keycodes.isVisible()
 
-    qtbot.mouseClick(find_key_btn(mw.tray_keycodes, "A"), qt_api.QtCore.Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(find_key_btn(mw.tray_keycodes, "A"), qt_api.QtCore.Qt.LeftButton)
     assert vk.combos[2] == (4, 0x106, 0, 0, 0)
 
     # change "Output key" to "B"
-    qtbot.mouseClick(w[4], qt_api.QtCore.Qt.MouseButton.LeftButton, pos=pos)
-    qtbot.mouseClick(find_key_btn(mw.tray_keycodes, "B"), qt_api.QtCore.Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(w[4], qt_api.QtCore.Qt.LeftButton, pos=pos)
+    qtbot.mouseClick(find_key_btn(mw.tray_keycodes, "B"), qt_api.QtCore.Qt.LeftButton)
     assert vk.combos[2] == (4, 0x106, 0, 0, 5)
 
     ak = mw.tray_keycodes.all_keycodes
@@ -497,26 +497,26 @@ def test_combos(qtbot):
 
     # change "Key 4" to LSft(D)
     # first set up LSft(kc)
-    qtbot.mouseClick(w[3], qt_api.QtCore.Qt.MouseButton.LeftButton, pos=pos)
+    qtbot.mouseClick(w[3], qt_api.QtCore.Qt.LeftButton, pos=pos)
     assert ak.isVisible()
     assert not bk.isVisible()
     ak.setCurrentIndex(3)
     assert ak.tabText(ak.currentIndex()) == "Quantum"
-    qtbot.mouseClick(find_key_btn(mw.tray_keycodes, "LSft\n(kc)"), qt_api.QtCore.Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(find_key_btn(mw.tray_keycodes, "LSft\n(kc)"), qt_api.QtCore.Qt.LeftButton)
     assert vk.combos[2] == (4, 0x106, 0, 0x200, 5)
     # now click the mask and set up D inside
-    qtbot.mouseClick(w[3], qt_api.QtCore.Qt.MouseButton.LeftButton, pos=pos_mask)
+    qtbot.mouseClick(w[3], qt_api.QtCore.Qt.LeftButton, pos=pos_mask)
     assert not ak.isVisible()
     assert bk.isVisible()
-    qtbot.mouseClick(find_key_btn(mw.tray_keycodes, "D"), qt_api.QtCore.Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(find_key_btn(mw.tray_keycodes, "D"), qt_api.QtCore.Qt.LeftButton)
     assert vk.combos[2] == (4, 0x106, 0, 0x207, 5)
 
     # change "Key 2" to E
-    qtbot.mouseClick(w[1], qt_api.QtCore.Qt.MouseButton.LeftButton, pos=pos)
+    qtbot.mouseClick(w[1], qt_api.QtCore.Qt.LeftButton, pos=pos)
     assert ak.isVisible()
     assert not bk.isVisible()
     ak.setCurrentIndex(0)
-    qtbot.mouseClick(find_key_btn(mw.tray_keycodes, "E"), qt_api.QtCore.Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(find_key_btn(mw.tray_keycodes, "E"), qt_api.QtCore.Qt.LeftButton)
     assert vk.combos[2] == (4, 8, 0, 0x207, 5)
 
     # check the final result in the gui as well
@@ -571,11 +571,11 @@ def test_tap_dance(qtbot):
     max_y = max(p.y() for p in bbox)
     pos_mask = QPoint(int((min_x + max_x) / 2), int(min_y + (max_y - min_y) * 4/5))
     pos = QPoint(bbox[0].x(), bbox[0].y())
-    qtbot.mouseClick(w[0], qt_api.QtCore.Qt.MouseButton.LeftButton, pos=pos)
+    qtbot.mouseClick(w[0], qt_api.QtCore.Qt.LeftButton, pos=pos)
     assert mw.tray_keycodes.isVisible()
 
     # note that for the tap dance the keycode change is immediate but not the timeout change
-    qtbot.mouseClick(find_key_btn(mw.tray_keycodes, "A"), qt_api.QtCore.Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(find_key_btn(mw.tray_keycodes, "A"), qt_api.QtCore.Qt.LeftButton)
     assert vk.tap_dance[2] == (4, 0x106, 0, 0, 500)
 
     timeout_w = td.widget(td.currentIndex()).findChildren(QSpinBox)[0]
@@ -590,7 +590,7 @@ def test_tap_dance(qtbot):
     # ok commit the change now
     timeout_w.setValue(123)
     assert td.tabText(td.currentIndex()) == "2*"
-    qtbot.mouseClick(tde.btn_save, qt_api.QtCore.Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(tde.btn_save, qt_api.QtCore.Qt.LeftButton)
     assert td.tabText(td.currentIndex()) == "2"
     assert vk.tap_dance[2] == (4, 0x106, 0, 0, 123)
 
@@ -600,7 +600,7 @@ def test_tap_dance(qtbot):
     assert tde.btn_save.isEnabled()
     assert td.tabText(td.currentIndex()) == "2*"
 
-    qtbot.mouseClick(tde.btn_revert, qt_api.QtCore.Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(tde.btn_revert, qt_api.QtCore.Qt.LeftButton)
     assert not tde.btn_save.isEnabled()
     assert td.tabText(td.currentIndex()) == "2"
     assert timeout_w.value() == 123
