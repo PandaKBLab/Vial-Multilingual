@@ -1,0 +1,50 @@
+name: Import upstream and baseline build
+on:
+  push:
+    paths:
+      - .github/workflows/bootstrap.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Import pinned upstream with history
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -f src/main/python/main.py; then
+            echo "Upstream is already imported."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git remote add upstream https://github.com/vial-kb/vial-gui.git
+            git fetch upstream aef8222a2d0429a183b2ed692d5f9efcfd383f08
+            git merge --allow-unrelated-histories --no-commit --no-ff -s ours aef8222a2d0429a183b2ed692d5f9efcfd383f08
+            git checkout aef8222a2d0429a183b2ed692d5f9efcfd383f08 -- src util requirements.txt test-requirements.txt COPYING .python-version .gitignore
+            git commit -m "Import Vial GUI at aef8222, preserving upstream history"
+            git push origin HEAD:main
+          fi
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.6.8'
+          architecture: x64
+      - name: Install pinned upstream dependencies
+        run: |
+          python -m pip install "pip==21.3.1" "setuptools==59.6.0" "wheel==0.37.1" "Cython==0.29.36"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pip install -r requirements.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Freeze upstream baseline
+        run: |
+          fbs freeze
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Compress-Archive -Path target/Vial -DestinationPath Vial-upstream-baseline-Windows-x64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: upstream-baseline-Windows-x64
+          path: Vial-upstream-baseline-Windows-x64.zip
