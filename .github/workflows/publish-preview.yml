@@ -28,6 +28,7 @@ jobs:
           jq -e --arg sha "$expected" '.conclusion == "success" and .head_sha == $sha and .head_branch == "main" and .path == ".github/workflows/build.yml"' /tmp/tested-run.json
           gh run download "$run_id" --name PandaKB-Vial-Windows-x64 --dir dist
           gh run download "$run_id" --name validation-report --dir report
+          sed -i 's/\r$//' dist/SHA256SUMS.txt
           (cd dist && sha256sum -c SHA256SUMS.txt)
           mapfile -t packages < <(find dist -maxdepth 1 -name 'PandaKB-Vial-*-Windows-x64.zip')
           test "${#packages[@]}" -eq 1
