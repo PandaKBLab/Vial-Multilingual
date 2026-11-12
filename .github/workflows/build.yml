@@ -105,7 +105,7 @@ jobs:
       - name: Read native smoke diagnostics
         if: always()
         run: |
-          Get-ChildItem build/smoke -Filter "*.log" -Recurse -ErrorAction SilentlyContinue | ForEach-Object { Get-Content $_.FullName }
+          Get-ChildItem build/smoke -Include "*.log","smoke-*.json" -Recurse -ErrorAction SilentlyContinue | ForEach-Object { Write-Output $_.Name; Get-Content $_.FullName }
       - name: Validate and package ZIP with license and checksum
         run: |
           python scripts/package_portable.py

@@ -739,5 +739,7 @@
   "To exit this mode, you will need to replug the keyboard\nor select Security->Lock from the menu.": "Zum Beenden die Tastatur neu verbinden\noder im Menü Sicherheit → Sperren wählen.",
   "Unsupported protocol version!\nPlease download latest Vial from https://get.vial.today/": "Protokollversion nicht unterstützt!\nNeueste Vial-Version: https://get.vial.today/",
   "sideload": "extern geladen",
-  "Dummy Keyboard": "Virtuelle Tastatur"
+  "Dummy Keyboard": "Virtuelle Tastatur",
+  "Any": "Frei",
+  "Vial Bootloader [{:04X}:{:04X}]": "Vial-Bootloader [{:04X}:{:04X}]"
 }

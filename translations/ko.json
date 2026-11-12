@@ -739,5 +739,7 @@
   "To exit this mode, you will need to replug the keyboard\nor select Security->Lock from the menu.": "종료하려면 키보드를 다시 연결하거나\n메뉴에서 보안 → 잠금을 선택하세요.",
   "Unsupported protocol version!\nPlease download latest Vial from https://get.vial.today/": "지원되지 않는 프로토콜 버전입니다!\nhttps://get.vial.today/ 에서 최신 Vial을 받으세요.",
   "sideload": "수동 로드",
-  "Dummy Keyboard": "가상 키보드"
+  "Dummy Keyboard": "가상 키보드",
+  "Any": "임의",
+  "Vial Bootloader [{:04X}:{:04X}]": "Vial 부트로더 [{:04X}:{:04X}]"
 }

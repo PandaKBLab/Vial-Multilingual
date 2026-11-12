@@ -3,6 +3,7 @@
 import faulthandler
 import json
 import os
+import traceback
 from PyQt5.QtCore import QSettings, QTimer, QCoreApplication
 from PyQt5.QtWidgets import QMessageBox, QLabel, QAbstractButton, QScrollArea, QComboBox
 from pandakb_i18n import LanguageManager
@@ -34,7 +35,7 @@ def run(appctx, language, directory):
             assert "GNU General Public License" in dialog.text()
             assert dialog.grab().save(os.path.join(directory, "about-{}.png".format(language)))
         except Exception as error:
-            errors.append(str(error))
+            errors.append(traceback.format_exc())
         finally:
             for dialog in dialogs:
                 dialog.accept()
@@ -43,6 +44,11 @@ def run(appctx, language, directory):
         try:
             assert manager.language == language
             result["language"] = manager.language
+            standard = QMessageBox(QMessageBox.Question, "", "", QMessageBox.Yes | QMessageBox.No)
+            result["standard_yes"] = standard.button(QMessageBox.Yes).text()
+            if language != "en":
+                assert result["standard_yes"].replace("&", "") != "Yes", "Qt standard buttons not translated"
+            standard.deleteLater()
             result["refresh"] = window.btn_refresh_devices.text()
             assert result["refresh"] == QCoreApplication.translate("MainWindow", "Refresh")
             if language != "en":
@@ -54,6 +60,9 @@ def run(appctx, language, directory):
             from keycodes.keycodes import Keycode
             prepare(window)
             window.resize(1180, 820)
+            app.processEvents()
+            result["window_size"] = [window.width(), window.height()]
+            assert window.width() <= 1280 and window.height() <= 900, result["window_size"]
             result["pages"] = []
             result["layout_issues"] = []
             for index in range(window.tabs.count()):
@@ -89,7 +98,7 @@ def run(appctx, language, directory):
                 assert window.grab().save(os.path.join(directory, "settings-{}-{}.png".format(language, index)))
             assert not result["layout_issues"], result["layout_issues"]
         except Exception as error:
-            errors.append(str(error))
+            errors.append(traceback.format_exc())
         finally:
             result["errors"] = errors
             with open(os.path.join(directory, "smoke-{}.json".format(language)), "w", encoding="utf-8") as out:

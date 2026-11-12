@@ -739,5 +739,7 @@
   "To exit this mode, you will need to replug the keyboard\nor select Security->Lock from the menu.": "Para sair, reconecte o teclado\nou escolha Segurança → Bloquear.",
   "Unsupported protocol version!\nPlease download latest Vial from https://get.vial.today/": "Versão do protocolo não suportada!\nBaixe o Vial em https://get.vial.today/",
   "sideload": "carga manual",
-  "Dummy Keyboard": "Teclado virtual"
+  "Dummy Keyboard": "Teclado virtual",
+  "Any": "Livre",
+  "Vial Bootloader [{:04X}:{:04X}]": "Bootloader Vial [{:04X}:{:04X}]"
 }

@@ -30,8 +30,8 @@ def prepare(window):
     keyboard.key_override_count = keyboard.alt_repeat_key_count = 2
     keyboard.tap_dance_entries = [("KC_A", "KC_LCTRL", "KC_B", "KC_LSHIFT", 200)] * 2
     keyboard.combo_entries = [("KC_A", "KC_B", "KC_NO", "KC_NO", "KC_C")] * 2
-    keyboard.key_override_entries = [KeyOverrideEntry(), KeyOverrideEntry()]
-    keyboard.alt_repeat_key_entries = [AltRepeatKeyEntry(), AltRepeatKeyEntry()]
+    keyboard.key_override_entries = [KeyOverrideEntry(["KC_NO", "KC_NO", 0, 0, 0, 0, 0]) for _ in range(2)]
+    keyboard.alt_repeat_key_entries = [AltRepeatKeyEntry(["KC_NO", "KC_NO", 0, 0]) for _ in range(2)]
     keyboard.supported_settings = set(QmkSettings.qsid_fields)
     keyboard.settings = {qsid: 0 for qsid in keyboard.supported_settings}
     keyboard.reload_settings = lambda: None

@@ -203,3 +203,14 @@ def test_all_catalog_entries_and_dynamic_tooltips(qapp, tmp_path, language):
         assert Keycode.serialize(Keycode.deserialize("LT3(KC_A)")) == "LT3(KC_A)"
     finally:
         manager.unload()
+
+def test_confirmed_restart_launches_before_closing(qapp, tmp_path, monkeypatch):
+    import pandakb_i18n as i18n
+    from types import SimpleNamespace
+    events = []
+    manager = LanguageManager(Context(), QSettings(str(tmp_path / "success.ini"), QSettings.IniFormat))
+    parent = SimpleNamespace(ui_lock_count=0, editors=[], close=lambda: events.append("close"))
+    monkeypatch.setattr(i18n.QProcess, "startDetached", lambda *args: (events.append("launch"), (True, 123))[1])
+    monkeypatch.setattr(i18n.QApplication, "instance", lambda: SimpleNamespace(quit=lambda: events.append("quit")))
+    assert manager.restart(parent)
+    assert events == ["launch", "close", "quit"]

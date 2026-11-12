@@ -739,5 +739,7 @@
   "An example keyboard UID was detected.\nPlease change your keyboard UID to be unique before you ship!": "サンプルのキーボード UID が検出されました。\n出荷前に固有の UID に変更してください！",
   "Unsupported protocol version!\nPlease download latest Vial from https://get.vial.today/": "非対応のプロトコルバージョンです！\nhttps://get.vial.today/ から最新の Vial を入手してください。",
   "sideload": "外部読込",
-  "Dummy Keyboard": "仮想キーボード"
+  "Dummy Keyboard": "仮想キーボード",
+  "Any": "任意",
+  "Vial Bootloader [{:04X}:{:04X}]": "Vial ブートローダー [{:04X}:{:04X}]"
 }

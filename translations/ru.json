@@ -739,5 +739,7 @@
   "To exit this mode, you will need to replug the keyboard\nor select Security->Lock from the menu.": "Для выхода переподключите клавиатуру\nили выберите Безопасность → Заблокировать.",
   "Unsupported protocol version!\nPlease download latest Vial from https://get.vial.today/": "Версия протокола не поддерживается!\nСкачайте новый Vial: https://get.vial.today/",
   "sideload": "внешнее описание",
-  "Dummy Keyboard": "Виртуальная клавиатура"
+  "Dummy Keyboard": "Виртуальная клавиатура",
+  "Any": "Любой",
+  "Vial Bootloader [{:04X}:{:04X}]": "Загрузчик Vial [{:04X}:{:04X}]"
 }

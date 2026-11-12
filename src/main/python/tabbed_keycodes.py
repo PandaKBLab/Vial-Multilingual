@@ -33,7 +33,7 @@ class AlternativeDisplay(QWidget):
             for title, code in prefix_buttons:
                 btn = SquareButton()
                 btn.setRelSize(KEYCODE_BTN_RATIO)
-                btn.setText(title)
+                btn.setText(tr("TabbedKeycodes", "Any") if title == "Any" else title)
                 btn.clicked.connect(lambda st, k=code: self.keycode_changed.emit(title))
                 self.key_layout.addWidget(btn)
 

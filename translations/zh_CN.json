@@ -739,5 +739,7 @@
   "An example keyboard UID was detected.\nPlease change your keyboard UID to be unique before you ship!": "检测到示例键盘 UID。\n出货前请将键盘 UID 修改为唯一值！",
   "Unsupported protocol version!\nPlease download latest Vial from https://get.vial.today/": "不支持此协议版本！\n请从 https://get.vial.today/ 下载最新版 Vial。",
   "sideload": "侧载",
-  "Dummy Keyboard": "模拟键盘"
+  "Dummy Keyboard": "模拟键盘",
+  "Any": "任意",
+  "Vial Bootloader [{:04X}:{:04X}]": "Vial 引导加载器 [{:04X}:{:04X}]"
 }
