@@ -3,12 +3,15 @@
 A multilingual desktop edition of [Vial](https://github.com/vial-kb/vial-gui), modified by **PandaKB**.
 The About Vial dialog keeps upstream attribution and identifies PandaKB's modifications.
 
-**Status: first preview, with partial translations.** This is not yet a fully translated production release.
+**Status: v0.1.0-preview.1 released, with partial translations.** This is not yet a fully translated production release.
+The published build passed 44 automated tests and frozen-EXE startup/About checks in all 12 languages. See [validation results](VALIDATION.md).
 
 ## Download and run
 
-Open the latest successful [Windows portable build](https://github.com/PandaKBLab/Vial-Multilingual/actions/workflows/build.yml), then download the **PandaKB-Vial-Windows-x64** artifact.
-Extract the artifact and the application ZIP inside it, then run **Vial/Vial.exe**.
+Download [PandaKB Vial v0.1.0-preview.1 for Windows x64](https://github.com/PandaKBLab/Vial-Multilingual/releases/download/v0.1.0-preview.1/PandaKB-Vial-v0.1.0-preview.1-Windows-x64.zip).
+Extract the ZIP and run **Vial/Vial.exe**.
+See the [release page](https://github.com/PandaKBLab/Vial-Multilingual/releases/tag/v0.1.0-preview.1) for the checksum, screenshots and translation report.
+Development packages remain available from successful [Windows portable builds](https://github.com/PandaKBLab/Vial-Multilingual/actions/workflows/build.yml).
 Keep the entire Vial folder together. Python and Qt do not need to be installed.
 Tagged releases appear under [Releases](https://github.com/PandaKBLab/Vial-Multilingual/releases).
 
