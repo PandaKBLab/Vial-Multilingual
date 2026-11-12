@@ -27,6 +27,7 @@ class GenericOption(QObject):
 
         self.lbl = QLabel(tr("QmkSettings", option["title"]))
         self.lbl.setWordWrap(True)
+        self.lbl.setMinimumWidth(320)
         self.lbl.setMaximumWidth(580)
         self.lbl.setToolTip(self.lbl.text())
         self.container.addWidget(self.lbl, self.row, 0)

@@ -227,3 +227,20 @@ def test_synthetic_keyboard_opens_all_editors(qtbot):
     assert window.rgb_configurator.handler_vialrgb.rgb_effect.count() > 40
     assert window.key_override.valid()
     assert window.alt_repeat_key.valid()
+
+@pytest.mark.parametrize("label, expected_bit", [
+    ("Don't register the trigger key again after the override is deactivated", 4),
+    ("Don't deactivate when another key is pressed down", 5),
+])
+def test_key_override_visible_option_matches_firmware_bit(qtbot, label, expected_bit):
+    from PyQt5.QtWidgets import QCheckBox
+    from editor.key_override import OptionsUI
+    from protocol.key_override import KeyOverrideOptions
+    options = OptionsUI()
+    qtbot.addWidget(options)
+    # Select by the instruction the user sees, then verify the firmware payload.
+    checkbox = next(item for item in options.findChildren(QCheckBox) if item.text() == label)
+    checkbox.setChecked(True)
+    assert options.save().serialize() == 1 << expected_bit
+    options.load(KeyOverrideOptions(1 << expected_bit))
+    assert checkbox.isChecked()
