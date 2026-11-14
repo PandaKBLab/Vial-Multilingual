@@ -1,0 +1,49 @@
+name: Publish verified desktop packages
+on:
+  push:
+    branches: [release/desktop-0.1.1]
+    paths: ['release-desktop.json']
+permissions:
+  actions: read
+  contents: write
+concurrency: publish-desktop-0.1.1
+
+jobs:
+  publish:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the build, source and expected artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          run_id=$(jq -r .run_id release-desktop.json)
+          commit=$(jq -r .commit release-desktop.json)
+          tag=$(jq -r .tag release-desktop.json)
+          [[ "$run_id" =~ ^[0-9]+$ ]]
+          [[ "$commit" =~ ^[a-f0-9]{40}$ ]]
+          test "$tag" = v0.1.1
+          gh api "repos/$GH_REPO/actions/runs/$run_id" > tested-run.json
+          jq -e --arg sha "$commit" '.conclusion == "success" and .head_sha == $sha and .event == "push" and .head_branch == "desktop-packages" and .path == ".github/workflows/build.yml"' tested-run.json
+          main=$(gh api "repos/$GH_REPO/git/ref/heads/main" --jq .object.sha)
+          gh api "repos/$GH_REPO/compare/$commit...$main" --jq .status | grep -Ex 'identical|ahead'
+          gh run download "$run_id" --pattern 'PandaKB-Vial-*' --dir packages
+          gh run download "$run_id" --name translations --dir translations
+          gh run download "$run_id" --name validation-report --dir validation
+          for platform in Linux-x86_64 macOS-arm64 macOS-x86_64; do
+            gh run download "$run_id" --name "validation-$platform" --dir "validation/$platform"
+          done
+          python scripts/check_desktop_release.py "$tag"
+          echo "RELEASE_TAG=$tag" >> "$GITHUB_ENV"
+          echo "TESTED_COMMIT=$commit" >> "$GITHUB_ENV"
+      - name: Publish the exact tested installers and portable packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          bash scripts/stage_desktop_release.sh "$RELEASE_TAG" packages dist
+          cp validation/translation-coverage.md dist/
+          gh release create "$RELEASE_TAG" dist/* --target "$TESTED_COMMIT" --latest \
+            --title "PandaKB Vial $RELEASE_TAG — Windows, macOS and Linux" --notes-file DESKTOP_RELEASE_NOTES.md
