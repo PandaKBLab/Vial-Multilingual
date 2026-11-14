@@ -33,7 +33,7 @@ if [[ "$(uname -s)" == Darwin ]]; then
   python -m PyInstaller "${options[@]}" --distpath target --windowed --target-arch "$arch" \
     --icon build/Vial.icns --osx-bundle-identifier com.pandakb.vial src/main/python/main.py
   app=target/Vial.app
-  lipo -verify_arch "$arch" "$app/Contents/MacOS/Vial"
+  test "$(lipo -archs "$app/Contents/MacOS/Vial")" = "$arch"
   codesign --verify --deep --strict "$app"
   mkdir -p build/dmg
   ditto "$app" "build/dmg/PandaKB Vial.app"
