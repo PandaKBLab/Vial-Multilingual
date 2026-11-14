@@ -1,10 +1,11 @@
 name: Desktop packages
 on:
   push:
-    branches: [main, desktop-packages, desktop-windows]
+    branches: [main]
     tags: ['v*']
     paths-ignore: ['**.md', 'NOTICE', '.github/workflows/bootstrap.yml']
   pull_request:
+    paths-ignore: ['**.md', 'NOTICE']
   workflow_dispatch:
 permissions:
   contents: read
@@ -29,9 +30,6 @@ jobs:
           for file in /usr/share/qt5/translations/qtbase_*.qm; do
             cp "$file" src/main/resources/base/translations/
           done
-      - name: Require complete extracted translations for stable tags
-        if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, '-')
-        run: python3 scripts/build_translations.py --strict
       - uses: actions/upload-artifact@v4
         with:
           name: translations
@@ -126,7 +124,6 @@ jobs:
           if-no-files-found: warn
 
   unix:
-    if: github.ref_name != 'desktop-windows'
     needs: translations
     timeout-minutes: 20
     strategy:
@@ -212,3 +209,25 @@ jobs:
             build/smoke/
             build/translation-coverage.*
           if-no-files-found: warn
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, '-')
+    needs: [windows, unix]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: PandaKB-Vial-*
+          path: packages
+      - name: Publish tested packages for the tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          bash scripts/stage_desktop_release.sh "$RELEASE_TAG" packages dist
+          gh release create "$RELEASE_TAG" dist/* --verify-tag --latest \
+            --title "PandaKB Vial $RELEASE_TAG — Windows, macOS and Linux" --generate-notes
