@@ -21,23 +21,32 @@ jobs:
           set -euo pipefail
           run_id=$(jq -r .run_id release-desktop.json)
           commit=$(jq -r .commit release-desktop.json)
+          windows_run=$(jq -r .windows_run release-desktop.json)
+          windows_commit=$(jq -r .windows_commit release-desktop.json)
+          [[ "$windows_run" =~ ^[0-9]+$ ]]
+          [[ "$windows_commit" =~ ^[a-f0-9]{40}$ ]]
           tag=$(jq -r .tag release-desktop.json)
           [[ "$run_id" =~ ^[0-9]+$ ]]
           [[ "$commit" =~ ^[a-f0-9]{40}$ ]]
           test "$tag" = v0.1.1
           gh api "repos/$GH_REPO/actions/runs/$run_id" > tested-run.json
           jq -e --arg sha "$commit" '.conclusion == "success" and .head_sha == $sha and .event == "push" and .head_branch == "desktop-packages" and .path == ".github/workflows/build.yml"' tested-run.json
+          gh api "repos/$GH_REPO/actions/runs/$windows_run" > tested-windows-run.json
+          jq -e --arg sha "$windows_commit" '.conclusion == "success" and .head_sha == $sha and .event == "push" and .head_branch == "desktop-windows" and .path == ".github/workflows/build.yml"' tested-windows-run.json
+          gh api "repos/$GH_REPO/compare/$commit...$windows_commit" > windows-fix.json
+          jq -e '.status == "ahead" and ([.files[].filename] | sort) == [".github/workflows/build.yml","packaging/windows/installer.nsi","scripts/windows_installer.ps1"]' windows-fix.json
           main=$(gh api "repos/$GH_REPO/git/ref/heads/main" --jq .object.sha)
-          gh api "repos/$GH_REPO/compare/$commit...$main" --jq .status | grep -Ex 'identical|ahead'
-          gh run download "$run_id" --pattern 'PandaKB-Vial-*' --dir packages
-          gh run download "$run_id" --name translations --dir translations
-          gh run download "$run_id" --name validation-report --dir validation
+          gh api "repos/$GH_REPO/compare/$windows_commit...$main" --jq .status | grep -Ex 'identical|ahead'
+          gh run download "$windows_run" --name PandaKB-Vial-Windows-x64 --dir packages/PandaKB-Vial-Windows-x64
+          gh run download "$windows_run" --name validation-report --dir validation
+          gh run download "$run_id" --pattern 'PandaKB-Vial-macOS-*' --dir packages
+          gh run download "$run_id" --name PandaKB-Vial-Linux-x86_64 --dir packages/PandaKB-Vial-Linux-x86_64
           for platform in Linux-x86_64 macOS-arm64 macOS-x86_64; do
             gh run download "$run_id" --name "validation-$platform" --dir "validation/$platform"
           done
           python scripts/check_desktop_release.py "$tag"
           echo "RELEASE_TAG=$tag" >> "$GITHUB_ENV"
-          echo "TESTED_COMMIT=$commit" >> "$GITHUB_ENV"
+          echo "TESTED_COMMIT=$windows_commit" >> "$GITHUB_ENV"
       - name: Publish the exact tested installers and portable packages
         env:
           GH_TOKEN: ${{ github.token }}
