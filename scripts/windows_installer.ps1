@@ -30,7 +30,13 @@ if (-not $smoke.WaitForExit(90000)) { Stop-Process -Id $smoke.Id; throw 'Install
 if ($smoke.ExitCode -ne 0 -or -not (Test-Path (Join-Path $output 'smoke-en.json'))) { throw 'Installed app smoke test failed.' }
 $sentinel = Join-Path $installed 'user-layout-test.vil'
 Set-Content -LiteralPath $sentinel -Value 'User file must survive uninstall.'
-$uninstall = Start-Process -FilePath (Join-Path $installed 'Uninstall.exe') -ArgumentList "/S _?=$installed" -WindowStyle Hidden -Wait -PassThru
+$reg = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\PandaKBVial'
+$registered = (Get-ItemProperty -LiteralPath $reg).UninstallString
+if ($registered -ne ('"{0}"' -f (Join-Path $installed 'Uninstall.exe'))) {
+    throw "The Windows Apps list does not point to the generated uninstaller: $registered"
+}
+$uninstall = Start-Process -FilePath $registered.Trim('"') -ArgumentList "/S _?=$installed" -WindowStyle Hidden -Wait -PassThru
+if (Test-Path $reg) { throw 'Windows still lists PandaKB Vial after uninstall.' }
 if ($uninstall.ExitCode -ne 0 -or (Test-Path (Join-Path $installed 'Vial.exe')) -or -not (Test-Path $sentinel)) {
     throw 'Uninstall failed or did not preserve the user file.'
 }

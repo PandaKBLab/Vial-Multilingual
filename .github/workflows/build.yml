@@ -1,7 +1,7 @@
 name: Desktop packages
 on:
   push:
-    branches: [main, desktop-packages]
+    branches: [main, desktop-packages, desktop-windows]
     tags: ['v*']
     paths-ignore: ['**.md', 'NOTICE', '.github/workflows/bootstrap.yml']
   pull_request:
@@ -126,6 +126,7 @@ jobs:
           if-no-files-found: warn
 
   unix:
+    if: github.ref_name != 'desktop-windows'
     needs: translations
     timeout-minutes: 20
     strategy:

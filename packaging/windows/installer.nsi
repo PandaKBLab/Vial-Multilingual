@@ -42,7 +42,7 @@ Section "PandaKB Vial"
   WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayVersion" "${VERSION}"
   WriteRegStr HKCU "${UNINSTALL_KEY}" "Publisher" "PandaKB"
   WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayIcon" "$INSTDIR\Vial.exe"
-  WriteRegStr HKCU "${UNINSTALL_KEY}" "UninstallString" '$"$INSTDIR\Uninstall.exe$"'
+  WriteRegStr HKCU "${UNINSTALL_KEY}" "UninstallString" '"$INSTDIR\Uninstall.exe"'
   WriteRegStr HKCU "${UNINSTALL_KEY}" "InstallLocation" "$INSTDIR"
   WriteRegDWORD HKCU "${UNINSTALL_KEY}" "NoModify" 1
   WriteRegDWORD HKCU "${UNINSTALL_KEY}" "NoRepair" 1
