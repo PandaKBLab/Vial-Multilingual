@@ -4,11 +4,11 @@ import logging
 import os
 import sys
 
-from PyQt5.QtCore import QObject, QCoreApplication, QSettings, QTranslator, QProcess
+from PyQt5.QtCore import QObject, QCoreApplication, QSettings, QTranslator, QProcess, QProcessEnvironment
 from PyQt5.QtWidgets import QApplication, QActionGroup, QMessageBox
 
 tr = QCoreApplication.translate
-PANDAKB_VERSION = "0.1.0"
+PANDAKB_VERSION = "0.1.1"
 LANGUAGES = (
     ("en", "English"), ("zh_CN", "简体中文"), ("zh_TW", "繁體中文"),
     ("ja", "日本語"), ("de", "Deutsch"), ("fr", "Français"),
@@ -99,7 +99,7 @@ class LanguageManager(QObject):
         if restart_blocked(parent):
             return False
         program, arguments = restart_command()
-        started = QProcess.startDetached(program, arguments, os.getcwd())
+        started = start_replacement(program, arguments)
         if isinstance(started, tuple):
             started = started[0]
         if not started:
@@ -127,7 +127,28 @@ def restart_command():
     # The child waits for this process to exit before opening the keyboard.
     arguments = [] if getattr(sys, "frozen", False) else [os.path.abspath(sys.argv[0])]
     arguments.append("--pandakb-wait-for-exit={}".format(os.getpid()))
-    return sys.executable, arguments
+    appimage = os.environ.get("APPIMAGE") if sys.platform.startswith("linux") and getattr(sys, "frozen", False) else None
+    return appimage or sys.executable, arguments
+
+
+def start_replacement(program, arguments):
+    if sys.platform.startswith("linux") and program == os.environ.get("APPIMAGE"):
+        # A fresh mount must load its own Qt and Python libraries.
+        process = QProcess()
+        process.setProgram(program)
+        process.setArguments(arguments)
+        process.setWorkingDirectory(os.getcwd())
+        environment = QProcessEnvironment.systemEnvironment()
+        original = environment.value("LD_LIBRARY_PATH_ORIG")
+        if original:
+            environment.insert("LD_LIBRARY_PATH", original)
+        else:
+            environment.remove("LD_LIBRARY_PATH")
+        environment.remove("LD_LIBRARY_PATH_ORIG")
+        environment.insert("PYINSTALLER_RESET_ENVIRONMENT", "1")
+        process.setProcessEnvironment(environment)
+        return process.startDetached()
+    return QProcess.startDetached(program, arguments, os.getcwd())
 
 
 def restart_blocked(window):

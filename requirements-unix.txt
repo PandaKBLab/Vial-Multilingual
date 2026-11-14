@@ -1,0 +1,12 @@
+# Build runtime for Linux x86_64 and native macOS arm64/x86_64.
+# Install fbs==0.9.0 separately without its legacy PyInstaller dependency.
+PyQt5==5.15.11
+PyQt5-Qt5==5.15.19
+PyQt5-sip==12.17.1
+PyInstaller==6.22.3
+hidapi==0.15.0
+keyboard==0.13.5; sys_platform == "linux"
+certifi==2026.2.25
+https://github.com/danthedeckie/simpleeval/archive/41c99b8e224a7a0ae0ac59c773598fe79a4470db.zip
+pytest==8.4.2
+pytest-qt==4.5.0

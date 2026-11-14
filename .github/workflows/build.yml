@@ -1,7 +1,7 @@
-name: Windows portable
+name: Desktop packages
 on:
   push:
-    branches: [main, i18n/full]
+    branches: [main, desktop-packages]
     tags: ['v*']
     paths-ignore: ['**.md', 'NOTICE', '.github/workflows/bootstrap.yml']
   pull_request:
@@ -9,7 +9,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: portable-${{ github.ref }}
+  group: desktop-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -111,6 +111,8 @@ jobs:
           python scripts/package_portable.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -m pip freeze | Out-File -Encoding utf8 build/dependency-versions.txt
+      - name: Build and test per-user Windows installer
+        run: ./scripts/windows_installer.ps1
       - uses: actions/upload-artifact@v4
         with:
           name: PandaKB-Vial-Windows-x64
@@ -123,23 +125,79 @@ jobs:
           path: build/
           if-no-files-found: warn
 
-  release:
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: windows
-    runs-on: ubuntu-22.04
-    permissions:
-      contents: write
+  unix:
+    needs: translations
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-22.04
+            package: Linux-x86_64
+          - runner: macos-15
+            package: macOS-arm64
+          - runner: macos-15-intel
+            package: macOS-x86_64
+    runs-on: ${{ matrix.runner }}
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
-          name: PandaKB-Vial-Windows-x64
-          path: dist
-      - name: Publish the validated tagged build
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          RELEASE_TAG: ${{ github.ref_name }}
+          name: translations
+          path: .
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Linux GUI and HID libraries
+        if: runner.os == 'Linux'
         run: |
-          args=()
-          if [[ "$RELEASE_TAG" == *-* ]]; then args+=(--prerelease); fi
-          gh release create "$RELEASE_TAG" dist/* --verify-tag --title "PandaKB Vial $RELEASE_TAG" --generate-notes "${args[@]}"
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends desktop-file-utils fonts-noto-cjk libgl1 libudev-dev libusb-1.0-0-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xkb1 xauth xvfb
+      - name: Set up Python and validate native HID backend
+        env:
+          HIDAPI_WITH_HIDRAW: '1'
+          HIDAPI_WITH_LIBUSB: '1'
+        run: |
+          python -m pip install --no-deps fbs==0.9.0
+          if [[ "$(uname -s)" == Linux ]]; then
+            python -m pip install --no-binary=hidapi -r requirements-unix.txt
+          else
+            python -m pip install -r requirements-unix.txt
+          fi
+          PYTHONPATH=src/main/python python -c 'from hidproxy import hid; assert isinstance(hid.enumerate(), list); print(hid.__file__)'
+      - name: Run regression and language tests
+        run: python scripts/run_tests.py
+      - name: Package native application
+        run: bash scripts/package_unix.sh
+      - name: Test AppImage in all 12 languages
+        if: runner.os == 'Linux'
+        run: |
+          shopt -s nullglob
+          packages=(dist/*.AppImage)
+          test "${#packages[@]}" -eq 1
+          xvfb-run --auto-servernum -s '-screen 0 1600x1000x24' \
+            python scripts/smoke_unix.py "${packages[0]}" --appimage-extract-and-run
+      - name: Test mounted DMG app in all 12 languages
+        if: runner.os == 'macOS'
+        run: |
+          mount=$(mktemp -d)
+          trap 'hdiutil detach "$mount" || true; rmdir "$mount"' EXIT
+          hdiutil attach dist/*.dmg -mountpoint "$mount" -nobrowse -readonly
+          python scripts/smoke_unix.py "$mount/PandaKB Vial.app/Contents/MacOS/Vial"
+      - name: Print package diagnostics
+        if: always()
+        run: find build/smoke -type f \( -name 'native-crash.log' -o -name 'smoke-*.json' \) -exec cat {} + 2>/dev/null || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PandaKB-Vial-${{ matrix.package }}
+          path: dist/*
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: validation-${{ matrix.package }}
+          path: |
+            build/tests.xml
+            build/smoke/
+            build/translation-coverage.*
+          if-no-files-found: warn

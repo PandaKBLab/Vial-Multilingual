@@ -71,10 +71,13 @@ class VialApplicationContext(ApplicationContext):
         return result
 
 if __name__ == '__main__':
-    if len(sys.argv) == 2 and sys.argv[1].startswith("--pandakb-wait-for-exit="):
+    if len(sys.argv) > 1 and sys.argv[1].startswith("--pandakb-wait-for-exit="):
         from pandakb_i18n import wait_for_previous_process
-        if not wait_for_previous_process(int(sys.argv.pop().split("=", 1)[1])):
+        if not wait_for_previous_process(int(sys.argv.pop(1).split("=", 1)[1])):
             sys.exit(1)
+    if getattr(sys, 'frozen', False) and sys.platform != 'win32':
+        from multiprocessing import freeze_support
+        freeze_support()
     if len(sys.argv) == 2 and sys.argv[1] == "--linux-recorder":
         from linux_keystroke_recorder import linux_keystroke_recorder
 

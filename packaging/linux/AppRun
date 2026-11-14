@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+here=$(dirname "$(readlink -f "$0")")
+export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}"
+exec "$here/usr/bin/Vial" "$@"

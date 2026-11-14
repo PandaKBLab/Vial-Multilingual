@@ -1,15 +1,16 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-"""Run upstream's simulated-device suite on the same Windows runtime as the ZIP."""
+"""Run upstream's simulated-device suite on the desktop build's runtime."""
 import os
 import sys
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 sys.path.insert(0, os.path.abspath("src/main/python"))
-# Upstream GUI tests import the Linux backend by name. On Windows they must
+# Upstream GUI tests import the Linux backend by name. On other platforms they must
 # patch the backend actually used by hidproxy, with the same simulated device.
-if sys.platform == "win32":
+if not sys.platform.startswith("linux"):
     from hidproxy import hid
     sys.modules["hidraw"] = hid
+if sys.platform == "win32":
     # Tests create several MainWindows in one process; upstream's Windows
     # notifier registers a single fixed window class and cannot be repeated.
     # Simulated device reads/writes still go through the normal update path.

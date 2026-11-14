@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=PandaKB Vial
+Comment=Multilingual keyboard configurator
+Exec=Vial
+Icon=pandakb-vial
+Type=Application
+Categories=Utility;Settings;
+Terminal=false

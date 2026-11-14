@@ -244,3 +244,14 @@ def test_key_override_visible_option_matches_firmware_bit(qtbot, label, expected
     assert options.save().serialize() == 1 << expected_bit
     options.load(KeyOverrideOptions(1 << expected_bit))
     assert checkbox.isChecked()
+
+def test_linux_restart_reopens_the_appimage(monkeypatch):
+    import sys
+    from pandakb_i18n import restart_command
+
+    monkeypatch.setattr(sys, "platform", "linux")
+    monkeypatch.setattr(sys, "frozen", True, raising=False)
+    monkeypatch.setenv("APPIMAGE", "/home/user/Downloads/PandaKB Vial.AppImage")
+    program, arguments = restart_command()
+    assert program == "/home/user/Downloads/PandaKB Vial.AppImage"
+    assert arguments == ["--pandakb-wait-for-exit={}".format(os.getpid())]
