@@ -165,15 +165,20 @@ def test_language_change_never_launches_during_operation(qapp, tmp_path, monkeyp
 def test_restart_waits_for_real_process():
     import subprocess
     import sys
+    import threading
     from pandakb_i18n import wait_for_previous_process
     process = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(0.5)"])
+    # A detached process is reaped by the OS. This test owns its child and
+    # must reap it so a Unix PID does not remain visible after exit.
+    reaper = threading.Thread(target=process.wait)
+    reaper.start()
     try:
         assert wait_for_previous_process(process.pid)
         assert process.poll() is not None
     finally:
         if process.poll() is None:
             process.terminate()
-        process.wait()
+        reaper.join()
 
 
 @pytest.mark.parametrize("language", [code for code, _ in LANGUAGES])
