@@ -2,19 +2,19 @@
 
 [English](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/README.md) · [简体中文](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.zh-CN.md) · [繁體中文](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.zh-TW.md) · **日本語** · [Deutsch](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.de.md) · [Français](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.fr.md) · [Español](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.es.md) · [Português (Brasil)](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.pt-BR.md) · [한국어](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.ko.md) · [Italiano](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.it.md) · [Русский](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.ru.md) · [Polski](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.pl.md)
 
-PandaKB が改変・保守するオープンソースの Vial キーボード設定ツールです。Windows x64 向けのポータブル版を提供します。UI は 12 言語に対応し、初回起動時は英語で表示されます。
+PandaKB が改変・保守するオープンソースの Vial キーボード設定ツールです。Windows、macOS、Linux に対応し、UI は 12 言語から選べます。初回起動時は英語で表示されます。
 
-[ダウンロード・リリース情報](https://github.com/PandaKBLab/Vial-Multilingual/releases/tag/v0.1.0) · [テスト結果](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/VALIDATION.md)
+[v0.1.1 のダウンロード](https://github.com/PandaKBLab/Vial-Multilingual/releases/tag/v0.1.1) · [テスト結果](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/VALIDATION.md)
 
 ## 使い方
 
-1. Windows x64 用の ZIP をすべて展開し、他のファイルと同じフォルダーにある `Vial.exe` を実行します。
+1. Windows x64 はインストーラーまたはポータブル ZIP を利用できます。ZIP はすべて展開し、`Vial.exe` を実行します。macOS はチップに合った DMG を選び、アプリを「アプリケーション」へ移動します。Linux x86_64 は AppImage に実行権限を付けて起動します。
 2. **Settings → Language / 语言** で言語を選びます。選択した言語は保存されます。
 3. 確認すると自動的に再起動します。未保存の編集がある場合は保存するか元に戻し、マクロの記録やファームウェア更新を終えてから再度選択してください。
 
-## Windows の初回実行時の警告
+## Windows / macOS / Linux
 
-ポータブル版は署名されていないため、SmartScreen に「発行元不明」と表示される場合があります。プロジェクトのリリースページから入手し、同ページの `SHA256SUMS.txt` で ZIP を確認してください。
+Windows 版は署名されておらず、SmartScreen が警告を表示する場合があります。macOS 版は Apple の公証を受けていません（[Apple の案内](https://support.apple.com/en-us/102445)）。ダウンロードは [SHA-256](https://github.com/PandaKBLab/Vial-Multilingual/releases/download/v0.1.1/SHA256SUMS.txt) で確認できます。Linux でキーボードを認識しない場合は [Vial の USB 権限ガイド](https://get.vial.today/manual/linux-udev.html)をご覧ください。
 
 ## v0.1.0
 

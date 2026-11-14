@@ -2,19 +2,19 @@
 
 [English](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/README.md) · [简体中文](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.zh-CN.md) · [繁體中文](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.zh-TW.md) · [日本語](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.ja.md) · [Deutsch](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.de.md) · **Français** · [Español](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.es.md) · [Português (Brasil)](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.pt-BR.md) · [한국어](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.ko.md) · [Italiano](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.it.md) · [Русский](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.ru.md) · [Polski](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/docs/languages/README.pl.md)
 
-PandaKB maintient cette édition portable pour Windows x64 du configurateur de clavier libre Vial. L’interface est disponible en douze langues, avec l’anglais comme langue par défaut.
+PandaKB maintient cette édition du configurateur de clavier libre Vial pour Windows, macOS et Linux. L’interface est proposée en douze langues, avec l’anglais par défaut.
 
-[Téléchargement et notes de version](https://github.com/PandaKBLab/Vial-Multilingual/releases/tag/v0.1.0) · [Rapport de tests](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/VALIDATION.md)
+[Télécharger la v0.1.1](https://github.com/PandaKBLab/Vial-Multilingual/releases/tag/v0.1.1) · [Rapport de tests](https://github.com/PandaKBLab/Vial-Multilingual/blob/main/VALIDATION.md)
 
 ## Prise en main
 
-1. Décompressez intégralement le ZIP Windows x64, puis lancez `Vial.exe` dans le dossier extrait en conservant les fichiers qui l’accompagnent.
+1. Pour Windows x64, utilisez l’installeur ou décompressez entièrement le ZIP portable, puis lancez `Vial.exe`. Pour macOS, choisissez le DMG adapté à votre puce et glissez l’app dans Applications. Sous Linux x86_64, rendez le fichier AppImage exécutable.
 2. Choisissez votre langue dans **Settings → Language / 语言**. Le choix est mémorisé.
 3. Après confirmation, Vial redémarre automatiquement. Enregistrez ou annulez les modifications en cours et terminez les enregistrements ou mises à jour du micrologiciel avant de réessayer.
 
-## Premier lancement sous Windows
+## Windows / macOS / Linux
 
-L’édition portable n’est pas signée. SmartScreen peut signaler un éditeur inconnu. Téléchargez le ZIP sur la page de publication du projet et vérifiez-le avec le fichier `SHA256SUMS.txt` de cette même page.
+Les paquets Windows ne sont pas signés et SmartScreen peut afficher un avertissement. Apple n’a pas notarisé les paquets macOS ([aide Apple](https://support.apple.com/en-us/102445)). Vérifiez le téléchargement avec [SHA-256](https://github.com/PandaKBLab/Vial-Multilingual/releases/download/v0.1.1/SHA256SUMS.txt). Si le clavier n’apparaît pas sous Linux, consultez le [guide Vial des permissions USB](https://get.vial.today/manual/linux-udev.html).
 
 ## v0.1.0
 
